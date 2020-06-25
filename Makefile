@@ -11,5 +11,7 @@ gen:
 	go generate ./...
 build: gen
 	go build -o bin/api .
+test: gen
+	go test -race ./...
 start:
 	export $$(cat .env | grep -v ^\# | xargs) && ./bin/api
