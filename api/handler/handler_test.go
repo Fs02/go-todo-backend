@@ -1,14 +1,55 @@
-package handler_test
+package handler
 
 import (
-	"encoding/json"
+	"errors"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-// jo stands for json object.
-// it's an alias that allows writing map for json response easier.
-type jo map[string]interface{}
+func TestRender(t *testing.T) {
+	tests := []struct {
+		name     string
+		data     interface{}
+		response string
+	}{
+		{
+			name:     "message",
+			data:     "lorem",
+			response: `{"message":"lorem"}`,
+		},
+		{
+			name:     "error",
+			data:     errors.New("system error"),
+			response: `{"error":"system error"}`,
+		},
+		{
+			name:     "nil",
+			data:     nil,
+			response: ``,
+		},
+		{
+			name: "struct",
+			data: struct {
+				ID int `json:"id"`
+			}{ID: 1},
+			response: `{"id":1}`,
+		},
+	}
 
-func (j jo) String() string {
-	bytes, _ := json.Marshal(j)
-	return string(bytes)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var (
+				rr = httptest.NewRecorder()
+			)
+
+			render(rr, test.data, 200)
+			if test.response != "" {
+				assert.JSONEq(t, test.response, rr.Body.String())
+			} else {
+				assert.Equal(t, test.response, rr.Body.String())
+			}
+		})
+	}
 }
