@@ -4,6 +4,7 @@ import (
 	context "context"
 
 	todos "github.com/Fs02/go-todo-backend/todos"
+	rel "github.com/Fs02/rel"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -41,9 +42,31 @@ func MockTodosCreate(result todos.Todo, err error) MockTodosFunc {
 	}
 }
 
+// MockTodosUpdate util.
+func MockTodosUpdate(result todos.Todo, err error) MockTodosFunc {
+	return func(svc *Todos) {
+		svc.On("Update", mock.Anything, mock.Anything, mock.Anything).
+			Return(func(ctx context.Context, out *todos.Todo, changeset rel.Changeset) error {
+				if result.ID != out.ID {
+					panic("inconsistent id")
+				}
+
+				*out = result
+				return err
+			})
+	}
+}
+
 // MockTodosClear util.
 func MockTodosClear() MockTodosFunc {
 	return func(svc *Todos) {
 		svc.On("Clear", mock.Anything)
+	}
+}
+
+// MockTodosDelete util.
+func MockTodosDelete() MockTodosFunc {
+	return func(svc *Todos) {
+		svc.On("Delete", mock.Anything, mock.Anything)
 	}
 }

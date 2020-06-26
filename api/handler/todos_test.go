@@ -10,10 +10,11 @@ import (
 	"github.com/Fs02/go-todo-backend/todos"
 	"github.com/Fs02/go-todo-backend/todos/todostest"
 	"github.com/Fs02/rel/reltest"
+	"github.com/Fs02/rel/where"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTodos_Show(t *testing.T) {
+func TestTodos_Index(t *testing.T) {
 	var (
 		trueb = true
 	)
@@ -132,6 +133,199 @@ func TestTodos_Create(t *testing.T) {
 			assert.Equal(t, test.status, rr.Code)
 			assert.Equal(t, test.location, rr.Header().Get("Location"))
 			assert.JSONEq(t, test.response, rr.Body.String())
+
+			repository.AssertExpectations(t)
+			todos.AssertExpectations(t)
+		})
+	}
+}
+
+func TestTodos_Show(t *testing.T) {
+	tests := []struct {
+		name     string
+		status   int
+		path     string
+		response string
+		isPanic  bool
+		mockRepo func(repo *reltest.Repository)
+	}{
+		{
+			name:     "ok",
+			status:   http.StatusOK,
+			path:     "/1",
+			response: `{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1"}`,
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
+			},
+		},
+		{
+			name:     "not found",
+			status:   http.StatusNotFound,
+			path:     "/1",
+			response: `{"error":"Record not found"}`,
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).NotFound()
+			},
+		},
+		{
+			name:    "panic",
+			path:    "/1",
+			isPanic: true,
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).ConnectionClosed()
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var (
+				req, _     = http.NewRequest("GET", test.path, nil)
+				rr         = httptest.NewRecorder()
+				repository = reltest.New()
+				todos      = &todostest.Todos{}
+				handler    = handler.NewTodos(repository, todos)
+			)
+
+			if test.mockRepo != nil {
+				test.mockRepo(repository)
+			}
+
+			if test.isPanic {
+				assert.Panics(t, func() {
+					handler.ServeHTTP(rr, req)
+				})
+			} else {
+				handler.ServeHTTP(rr, req)
+				assert.Equal(t, test.status, rr.Code)
+				assert.JSONEq(t, test.response, rr.Body.String())
+			}
+
+			repository.AssertExpectations(t)
+			todos.AssertExpectations(t)
+		})
+	}
+}
+
+func TestTodos_Update(t *testing.T) {
+	tests := []struct {
+		name            string
+		status          int
+		path            string
+		payload         string
+		response        string
+		mockRepo        func(repo *reltest.Repository)
+		mockTodosUpdate func(todos *todostest.Todos)
+	}{
+		{
+			name:     "ok",
+			status:   http.StatusOK,
+			path:     "/1",
+			payload:  `{"title": "Wake"}`,
+			response: `{"id":1, "title":"Wake", "completed":false, "order":0, "url":"todos/1"}`,
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
+			},
+			mockTodosUpdate: todostest.MockTodosUpdate(
+				todos.Todo{ID: 1, Title: "Wake"},
+				nil,
+			),
+		},
+		{
+			name:     "validation error",
+			status:   http.StatusUnprocessableEntity,
+			path:     "/1",
+			payload:  `{"title": ""}`,
+			response: `{"error":"Title can't be blank"}`,
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
+			},
+			mockTodosUpdate: todostest.MockTodosUpdate(
+				todos.Todo{ID: 1, Title: ""},
+				todos.ErrTodoTitleBlank,
+			),
+		},
+		{
+			name:     "bad request",
+			status:   http.StatusBadRequest,
+			path:     "/1",
+			payload:  ``,
+			response: `{"error":"Bad Request"}`,
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var (
+				body       = strings.NewReader(test.payload)
+				req, _     = http.NewRequest("PATCH", test.path, body)
+				rr         = httptest.NewRecorder()
+				repository = reltest.New()
+				todos      = &todostest.Todos{}
+				handler    = handler.NewTodos(repository, todos)
+			)
+
+			if test.mockRepo != nil {
+				test.mockRepo(repository)
+			}
+
+			todostest.MockTodos(todos, test.mockTodosUpdate)
+
+			handler.ServeHTTP(rr, req)
+
+			assert.Equal(t, test.status, rr.Code)
+			assert.JSONEq(t, test.response, rr.Body.String())
+
+			repository.AssertExpectations(t)
+			todos.AssertExpectations(t)
+		})
+	}
+}
+
+func TestTodos_Destroy(t *testing.T) {
+	tests := []struct {
+		name            string
+		status          int
+		path            string
+		response        string
+		mockRepo        func(repo *reltest.Repository)
+		mockTodosDelete func(todos *todostest.Todos)
+	}{
+		{
+			name:     "ok",
+			status:   http.StatusNoContent,
+			path:     "/1",
+			response: "",
+			mockRepo: func(repo *reltest.Repository) {
+				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
+			},
+			mockTodosDelete: todostest.MockTodosDelete(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var (
+				req, _     = http.NewRequest("DELETE", test.path, nil)
+				rr         = httptest.NewRecorder()
+				repository = reltest.New()
+				todos      = &todostest.Todos{}
+				handler    = handler.NewTodos(repository, todos)
+			)
+
+			if test.mockRepo != nil {
+				test.mockRepo(repository)
+			}
+
+			todostest.MockTodos(todos, test.mockTodosDelete)
+
+			handler.ServeHTTP(rr, req)
+
+			assert.Equal(t, test.status, rr.Code)
+			assert.Equal(t, test.response, rr.Body.String())
 
 			repository.AssertExpectations(t)
 			todos.AssertExpectations(t)

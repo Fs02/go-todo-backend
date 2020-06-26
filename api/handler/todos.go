@@ -78,7 +78,7 @@ func (t Todos) Show(w http.ResponseWriter, r *http.Request) {
 		todo = ctx.Value(loadKey).(todos.Todo)
 	)
 
-	render(w, todo, 201)
+	render(w, todo, 200)
 }
 
 // Update handle PATCH /{ID}
