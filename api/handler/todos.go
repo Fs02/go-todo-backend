@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Fs02/go-todo-backend/todos"
 	"github.com/Fs02/rel"
 	"github.com/Fs02/rel/where"
-	"github.com/Fs02/go-todo-backend/todos"
 	"github.com/go-chi/chi"
 	"go.uber.org/zap"
 )
@@ -58,7 +58,7 @@ func (t Todos) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
 		logger.Warn("decode error", zap.Error(err))
-		render(w, errors.New("bad request"), 400)
+		render(w, ErrBadRequest, 400)
 		return
 	}
 
@@ -67,7 +67,7 @@ func (t Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Location", fmt.Sprint("/", todo.ID))
+	w.Header().Set("Location", fmt.Sprint(r.RequestURI, "/", todo.ID))
 	render(w, todo, 201)
 }
 
@@ -78,7 +78,7 @@ func (t Todos) Show(w http.ResponseWriter, r *http.Request) {
 		todo = ctx.Value(loadKey).(todos.Todo)
 	)
 
-	render(w, todo, 201)
+	render(w, todo, 200)
 }
 
 // Update handle PATCH /{ID}
@@ -91,7 +91,7 @@ func (t Todos) Update(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
 		logger.Warn("decode error", zap.Error(err))
-		render(w, errors.New("bad request"), 400)
+		render(w, ErrBadRequest, 400)
 		return
 	}
 

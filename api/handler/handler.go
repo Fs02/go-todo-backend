@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -9,6 +10,8 @@ import (
 
 var (
 	logger, _ = zap.NewProduction(zap.Fields(zap.String("type", "handler")))
+	// ErrBadRequest error.
+	ErrBadRequest = errors.New("Bad Request")
 )
 
 func render(w http.ResponseWriter, body interface{}, status int) {
@@ -28,6 +31,8 @@ func render(w http.ResponseWriter, body interface{}, status int) {
 		}{
 			Error: v.Error(),
 		})
+	case nil:
+		// do nothing
 	default:
 		json.NewEncoder(w).Encode(body)
 	}
