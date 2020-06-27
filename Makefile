@@ -10,8 +10,8 @@ rollback:
 gen:
 	go generate ./...
 build: gen
-	go build -o bin/api ./cmd/api
+	go build -mod=vendor -o bin/api ./cmd/api
 test: gen
-	go test -race ./...
+	go test -mod=vendor -race ./...
 start:
 	export $$(cat .env | grep -v ^\# | xargs) && ./bin/api
