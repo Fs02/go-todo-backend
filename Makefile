@@ -10,7 +10,7 @@ rollback:
 gen:
 	go generate ./...
 build: gen
-	go build -o bin/api .
+	go build -o bin/api ./cmd/api
 test: gen
 	go test -race ./...
 start:

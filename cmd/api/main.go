@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Fs02/go-todo-backend/api" // TODO: use postgres
+	"github.com/Fs02/go-todo-backend/api"
 	"github.com/Fs02/rel"
 	"github.com/Fs02/rel/adapter/mysql"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // TODO: use postgres
 	"go.uber.org/zap"
 )
 

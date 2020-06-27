@@ -24,14 +24,14 @@ func TestTodos_Index(t *testing.T) {
 		status          int
 		path            string
 		response        string
-		mockTodosSearch func(todos *todostest.Todos)
+		mockTodosSearch func(todos *todostest.Service)
 	}{
 		{
 			name:     "ok",
 			status:   http.StatusOK,
 			path:     "/",
 			response: `[{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1"}]`,
-			mockTodosSearch: todostest.MockTodosSearch(
+			mockTodosSearch: todostest.MockSearch(
 				[]todos.Todo{{ID: 1, Title: "Sleep"}},
 				todos.Filter{},
 				nil,
@@ -42,7 +42,7 @@ func TestTodos_Index(t *testing.T) {
 			status:   http.StatusOK,
 			path:     "/?keyword=Wake&completed=true",
 			response: `[{"id":2, "title":"Wake", "completed":true, "order":0, "url":"todos/2"}]`,
-			mockTodosSearch: todostest.MockTodosSearch(
+			mockTodosSearch: todostest.MockSearch(
 				[]todos.Todo{{ID: 2, Title: "Wake", Completed: true}},
 				todos.Filter{Keyword: "Wake", Completed: &trueb},
 				nil,
@@ -56,11 +56,11 @@ func TestTodos_Index(t *testing.T) {
 				req, _     = http.NewRequest("GET", test.path, nil)
 				rr         = httptest.NewRecorder()
 				repository = reltest.New()
-				todos      = &todostest.Todos{}
+				todos      = &todostest.Service{}
 				handler    = handler.NewTodos(repository, todos)
 			)
 
-			todostest.MockTodos(todos, test.mockTodosSearch)
+			todostest.Mock(todos, test.mockTodosSearch)
 
 			handler.ServeHTTP(rr, req)
 
@@ -81,7 +81,7 @@ func TestTodos_Create(t *testing.T) {
 		payload         string
 		response        string
 		location        string
-		mockTodosCreate func(todos *todostest.Todos)
+		mockTodosCreate func(todos *todostest.Service)
 	}{
 		{
 			name:     "created",
@@ -90,7 +90,7 @@ func TestTodos_Create(t *testing.T) {
 			payload:  `{"title": "Sleep"}`,
 			response: `{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1"}`,
 			location: "/1",
-			mockTodosCreate: todostest.MockTodosCreate(
+			mockTodosCreate: todostest.MockCreate(
 				todos.Todo{ID: 1, Title: "Sleep"},
 				nil,
 			),
@@ -101,7 +101,7 @@ func TestTodos_Create(t *testing.T) {
 			path:     "/",
 			payload:  `{"title": ""}`,
 			response: `{"error":"Title can't be blank"}`,
-			mockTodosCreate: todostest.MockTodosCreate(
+			mockTodosCreate: todostest.MockCreate(
 				todos.Todo{Title: "Sleep"},
 				todos.ErrTodoTitleBlank,
 			),
@@ -122,11 +122,11 @@ func TestTodos_Create(t *testing.T) {
 				req, _     = http.NewRequest("POST", test.path, body)
 				rr         = httptest.NewRecorder()
 				repository = reltest.New()
-				todos      = &todostest.Todos{}
+				todos      = &todostest.Service{}
 				handler    = handler.NewTodos(repository, todos)
 			)
 
-			todostest.MockTodos(todos, test.mockTodosCreate)
+			todostest.Mock(todos, test.mockTodosCreate)
 
 			handler.ServeHTTP(rr, req)
 
@@ -183,7 +183,7 @@ func TestTodos_Show(t *testing.T) {
 				req, _     = http.NewRequest("GET", test.path, nil)
 				rr         = httptest.NewRecorder()
 				repository = reltest.New()
-				todos      = &todostest.Todos{}
+				todos      = &todostest.Service{}
 				handler    = handler.NewTodos(repository, todos)
 			)
 
@@ -215,7 +215,7 @@ func TestTodos_Update(t *testing.T) {
 		payload         string
 		response        string
 		mockRepo        func(repo *reltest.Repository)
-		mockTodosUpdate func(todos *todostest.Todos)
+		mockTodosUpdate func(todos *todostest.Service)
 	}{
 		{
 			name:     "ok",
@@ -226,7 +226,7 @@ func TestTodos_Update(t *testing.T) {
 			mockRepo: func(repo *reltest.Repository) {
 				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
 			},
-			mockTodosUpdate: todostest.MockTodosUpdate(
+			mockTodosUpdate: todostest.MockUpdate(
 				todos.Todo{ID: 1, Title: "Wake"},
 				nil,
 			),
@@ -240,7 +240,7 @@ func TestTodos_Update(t *testing.T) {
 			mockRepo: func(repo *reltest.Repository) {
 				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
 			},
-			mockTodosUpdate: todostest.MockTodosUpdate(
+			mockTodosUpdate: todostest.MockUpdate(
 				todos.Todo{ID: 1, Title: ""},
 				todos.ErrTodoTitleBlank,
 			),
@@ -264,7 +264,7 @@ func TestTodos_Update(t *testing.T) {
 				req, _     = http.NewRequest("PATCH", test.path, body)
 				rr         = httptest.NewRecorder()
 				repository = reltest.New()
-				todos      = &todostest.Todos{}
+				todos      = &todostest.Service{}
 				handler    = handler.NewTodos(repository, todos)
 			)
 
@@ -272,7 +272,7 @@ func TestTodos_Update(t *testing.T) {
 				test.mockRepo(repository)
 			}
 
-			todostest.MockTodos(todos, test.mockTodosUpdate)
+			todostest.Mock(todos, test.mockTodosUpdate)
 
 			handler.ServeHTTP(rr, req)
 
@@ -292,7 +292,7 @@ func TestTodos_Destroy(t *testing.T) {
 		path            string
 		response        string
 		mockRepo        func(repo *reltest.Repository)
-		mockTodosDelete func(todos *todostest.Todos)
+		mockTodosDelete func(todos *todostest.Service)
 	}{
 		{
 			name:     "ok",
@@ -302,7 +302,7 @@ func TestTodos_Destroy(t *testing.T) {
 			mockRepo: func(repo *reltest.Repository) {
 				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
 			},
-			mockTodosDelete: todostest.MockTodosDelete(),
+			mockTodosDelete: todostest.MockDelete(),
 		},
 	}
 
@@ -312,7 +312,7 @@ func TestTodos_Destroy(t *testing.T) {
 				req, _     = http.NewRequest("DELETE", test.path, nil)
 				rr         = httptest.NewRecorder()
 				repository = reltest.New()
-				todos      = &todostest.Todos{}
+				todos      = &todostest.Service{}
 				handler    = handler.NewTodos(repository, todos)
 			)
 
@@ -320,7 +320,7 @@ func TestTodos_Destroy(t *testing.T) {
 				test.mockRepo(repository)
 			}
 
-			todostest.MockTodos(todos, test.mockTodosDelete)
+			todostest.Mock(todos, test.mockTodosDelete)
 
 			handler.ServeHTTP(rr, req)
 
@@ -339,14 +339,14 @@ func TestTodos_Clear(t *testing.T) {
 		status         int
 		path           string
 		response       string
-		mockTodosClear func(todos *todostest.Todos)
+		mockTodosClear func(todos *todostest.Service)
 	}{
 		{
 			name:           "created",
 			status:         http.StatusNoContent,
 			path:           "/",
 			response:       "",
-			mockTodosClear: todostest.MockTodosClear(),
+			mockTodosClear: todostest.MockClear(),
 		},
 	}
 
@@ -356,11 +356,11 @@ func TestTodos_Clear(t *testing.T) {
 				req, _     = http.NewRequest("DELETE", test.path, nil)
 				rr         = httptest.NewRecorder()
 				repository = reltest.New()
-				todos      = &todostest.Todos{}
+				todos      = &todostest.Service{}
 				handler    = handler.NewTodos(repository, todos)
 			)
 
-			todostest.MockTodos(todos, test.mockTodosClear)
+			todostest.Mock(todos, test.mockTodosClear)
 
 			handler.ServeHTTP(rr, req)
 

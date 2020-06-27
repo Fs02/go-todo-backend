@@ -26,7 +26,7 @@ const (
 type Todos struct {
 	*chi.Mux
 	repository rel.Repository
-	todos      todos.Todos
+	todos      todos.Service
 }
 
 // Index handle GET /.
@@ -147,7 +147,7 @@ func (t Todos) Load(next http.Handler) http.Handler {
 }
 
 // NewTodos handler.
-func NewTodos(repository rel.Repository, todos todos.Todos) Todos {
+func NewTodos(repository rel.Repository, todos todos.Service) Todos {
 	h := Todos{
 		Mux:        chi.NewMux(),
 		repository: repository,
