@@ -12,8 +12,8 @@ import (
 
 	"github.com/Fs02/go-todo-backend/api"
 	"github.com/Fs02/rel"
-	"github.com/Fs02/rel/adapter/mysql"
-	_ "github.com/go-sql-driver/mysql" // TODO: use postgres
+	"github.com/Fs02/rel/adapter/postgres"
+	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
@@ -48,15 +48,15 @@ func main() {
 func initRepository() rel.Repository {
 	var (
 		logger, _ = zap.NewProduction(zap.Fields(zap.String("type", "repository")))
-		dsn       = fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-			os.Getenv("MYSQL_USERNAME"),
-			os.Getenv("MYSQL_PASSWORD"),
-			os.Getenv("MYSQL_HOST"),
-			os.Getenv("MYSQL_PORT"),
-			os.Getenv("MYSQL_DATABASE"))
+		dsn       = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			os.Getenv("POSTGRESQL_USERNAME"),
+			os.Getenv("POSTGRESQL_PASSWORD"),
+			os.Getenv("POSTGRESQL_HOST"),
+			os.Getenv("POSTGRESQL_PORT"),
+			os.Getenv("POSTGRESQL_DATABASE"))
 	)
 
-	adapter, err := mysql.Open(dsn)
+	adapter, err := postgres.Open(dsn)
 	if err != nil {
 		logger.Fatal(err.Error(), zap.Error(err))
 	}

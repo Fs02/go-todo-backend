@@ -1,12 +1,12 @@
 all: build start
-dep:
-	go get github.com/Fs02/kamimai
-migrate:
-	export $$(cat .env | grep -v ^\# | xargs) && \
-	kamimai --driver=mysql --dsn="mysql://$$MYSQL_USERNAME:$$MYSQL_PASSWORD@($$MYSQL_HOST:$$MYSQL_PORT)/$$MYSQL_DATABASE" --directory=./db/migrations sync
-rollback:
-	export $$(cat .env | grep -v ^\# | xargs) && \
-	kamimai --driver=mysql --dsn="mysql://$$MYSQL_USERNAME:$$MYSQL_PASSWORD@($$MYSQL_HOST:$$MYSQL_PORT)/$$MYSQL_DATABASE" --directory=./db/migrations down
+bundle:
+	bundle install --path bundle
+db-create: bundle
+	bundle exec rake db:create
+db-migrate: bundle
+	bundle exec rake db:migrate
+db-rollback: bundle
+	bundle exec rake db:rollback
 gen:
 	go generate ./...
 build: gen
