@@ -4,6 +4,13 @@ Go Todo Backend Example Using Modular Project Layout for Product Microservice. I
 
 This example uses [Chi](https://github.com/go-chi/chi) for http router and [REL](https://github.com/Fs02/rel) for database access.
 
+Feature:
+
+- Modular Project Structure.
+- Full example including tests.
+- Docker deployment.
+- Compatible with [todobackend](https://www.todobackend.com/specs/index.html).
+
 ## Installation
 
 ### Prerequisite
