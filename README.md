@@ -15,8 +15,7 @@ Feature:
 
 ### Prerequisite
 
-1. Install [migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate) for database migration.
-2. Install [mockery](https://github.com/vektra/mockery#installation) for interface mock generation.
+1. Install [mockery](https://github.com/vektra/mockery#installation) for interface mock generation.
 
 ### Running
 
