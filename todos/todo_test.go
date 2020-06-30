@@ -40,6 +40,8 @@ func TestTodo_MarshalJSON(t *testing.T) {
 		"title": "Sleep",
 		"completed": true,
 		"order": 0,
-		"url": "http://localhost:3000/1"
+		"url": "http://localhost:3000/1",
+		"created_at": "0001-01-01T00:00:00Z",
+		"updated_at": "0001-01-01T00:00:00Z"
 	}`, string(encoded))
 }
