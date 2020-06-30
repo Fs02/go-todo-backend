@@ -10,10 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_28_06_225100) do
+ActiveRecord::Schema.define(version: 2020_30_06_230700) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "points", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string "name"
+    t.integer "count"
+    t.bigint "score_id"
+    t.index ["score_id"], name: "index_points_on_score_id"
+  end
+
+  create_table "scores", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer "total_point"
+  end
 
   create_table "todos", force: :cascade do |t|
     t.datetime "created_at"

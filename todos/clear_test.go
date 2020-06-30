@@ -13,7 +13,7 @@ func TestClear(t *testing.T) {
 	var (
 		ctx        = context.TODO()
 		repository = reltest.New()
-		service    = New(repository)
+		service    = New(repository, nil)
 	)
 
 	repository.ExpectDeleteAll(rel.From("todos")).Unsafe()

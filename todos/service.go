@@ -3,6 +3,7 @@ package todos
 import (
 	"context"
 
+	"github.com/Fs02/go-todo-backend/scores"
 	"github.com/Fs02/rel"
 	"go.uber.org/zap"
 )
@@ -11,7 +12,7 @@ var (
 	logger, _ = zap.NewProduction(zap.Fields(zap.String("type", "todos")))
 )
 
-//go:generate mockery -all -case=underscore -output todostest -outpkg todostest
+//go:generate mockery --all --case=underscore --output todostest --outpkg todostest
 
 // Service instance for todo's domain.
 // Any operation done to any of object within this domain should use this service.
@@ -36,11 +37,11 @@ type service struct {
 var _ Service = (*service)(nil)
 
 // New Todos service.
-func New(repository rel.Repository) Service {
+func New(repository rel.Repository, scores scores.Service) Service {
 	return service{
 		search: search{repository: repository},
-		create: create{repository: repository},
-		update: update{repository: repository},
+		create: create{repository: repository, scores: scores},
+		update: update{repository: repository, scores: scores},
 		delete: delete{repository: repository},
 		clear:  clear{repository: repository},
 	}

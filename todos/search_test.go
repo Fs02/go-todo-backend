@@ -13,7 +13,7 @@ func TestSearch(t *testing.T) {
 	var (
 		ctx        = context.TODO()
 		repository = reltest.New()
-		service    = New(repository)
+		service    = New(repository, nil)
 		todos      []Todo
 		completed  = false
 		filter     = Filter{Keyword: "Sleep", Completed: &completed}

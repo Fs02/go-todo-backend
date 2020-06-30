@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 )
 
 var (
@@ -16,10 +17,12 @@ var (
 
 // Todo respresent a record stored in todos table.
 type Todo struct {
-	ID        uint   `json:"id"`
-	Title     string `json:"title"`
-	Order     int    `json:"order"`
-	Completed bool   `json:"completed"`
+	ID        uint      `json:"id"`
+	Title     string    `json:"title"`
+	Order     int       `json:"order"`
+	Completed bool      `json:"completed"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Validate todo.
