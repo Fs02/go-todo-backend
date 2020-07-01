@@ -12,7 +12,7 @@ func TestDelete(t *testing.T) {
 	var (
 		ctx        = context.TODO()
 		repository = reltest.New()
-		service    = New(repository)
+		service    = New(repository, nil)
 		todo       = Todo{ID: 1, Title: "Sleep"}
 	)
 

@@ -30,7 +30,7 @@ func TestTodos_Index(t *testing.T) {
 			name:     "ok",
 			status:   http.StatusOK,
 			path:     "/",
-			response: `[{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1"}]`,
+			response: `[{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1", "created_at":"0001-01-01T00:00:00Z", "updated_at":"0001-01-01T00:00:00Z"}]`,
 			mockTodosSearch: todostest.MockSearch(
 				[]todos.Todo{{ID: 1, Title: "Sleep"}},
 				todos.Filter{},
@@ -41,7 +41,7 @@ func TestTodos_Index(t *testing.T) {
 			name:     "with keyword and filter completed",
 			status:   http.StatusOK,
 			path:     "/?keyword=Wake&completed=true",
-			response: `[{"id":2, "title":"Wake", "completed":true, "order":0, "url":"todos/2"}]`,
+			response: `[{"id":2, "title":"Wake", "completed":true, "order":0, "url":"todos/2", "created_at":"0001-01-01T00:00:00Z", "updated_at":"0001-01-01T00:00:00Z"}]`,
 			mockTodosSearch: todostest.MockSearch(
 				[]todos.Todo{{ID: 2, Title: "Wake", Completed: true}},
 				todos.Filter{Keyword: "Wake", Completed: &trueb},
@@ -88,7 +88,7 @@ func TestTodos_Create(t *testing.T) {
 			status:   http.StatusCreated,
 			path:     "/",
 			payload:  `{"title": "Sleep"}`,
-			response: `{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1"}`,
+			response: `{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1", "created_at":"0001-01-01T00:00:00Z", "updated_at":"0001-01-01T00:00:00Z"}`,
 			location: "/1",
 			mockTodosCreate: todostest.MockCreate(
 				todos.Todo{ID: 1, Title: "Sleep"},
@@ -153,7 +153,7 @@ func TestTodos_Show(t *testing.T) {
 			name:     "ok",
 			status:   http.StatusOK,
 			path:     "/1",
-			response: `{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1"}`,
+			response: `{"id":1, "title":"Sleep", "completed":false, "order":0, "url":"todos/1", "created_at":"0001-01-01T00:00:00Z", "updated_at":"0001-01-01T00:00:00Z"}`,
 			mockRepo: func(repo *reltest.Repository) {
 				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
 			},
@@ -222,7 +222,7 @@ func TestTodos_Update(t *testing.T) {
 			status:   http.StatusOK,
 			path:     "/1",
 			payload:  `{"title": "Wake"}`,
-			response: `{"id":1, "title":"Wake", "completed":false, "order":0, "url":"todos/1"}`,
+			response: `{"id":1, "title":"Wake", "completed":false, "order":0, "url":"todos/1", "created_at":"0001-01-01T00:00:00Z", "updated_at":"0001-01-01T00:00:00Z"}`,
 			mockRepo: func(repo *reltest.Repository) {
 				repo.ExpectFind(where.Eq("id", 1)).Result(todos.Todo{ID: 1, Title: "Sleep"})
 			},
