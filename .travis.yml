@@ -2,7 +2,6 @@ language: go
 go:
   - "1.14.x"
 env:
-  - CC_TEST_REPORTER_ID=bb65ef632dc1765ae68c313a2966c37d6aa66747b26fba4bb776ceef1de0e1ad
   - COVER=-coverprofile=c.out
 script:
   - go test -race $COVER ./...
