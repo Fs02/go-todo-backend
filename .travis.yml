@@ -1,6 +1,11 @@
 language: go
 go:
   - "1.14.x"
+env:
+  - COVER=-coverprofile=c.out
 script:
-  - go test -race ./...
-
+  - go test -race $COVER ./...
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
