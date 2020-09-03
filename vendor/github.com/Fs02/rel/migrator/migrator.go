@@ -61,7 +61,7 @@ func (m Migrator) buildVersionTableDefinition() rel.Table {
 	var schema rel.Schema
 	schema.CreateTableIfNotExists(versionTable, func(t *rel.Table) {
 		t.ID("id")
-		t.BigInt("version", rel.Unique(true))
+		t.BigInt("version", rel.Unsigned(true), rel.Unique(true))
 		t.DateTime("created_at")
 		t.DateTime("updated_at")
 	})
@@ -83,8 +83,6 @@ func (m *Migrator) sync(ctx context.Context) {
 
 	m.repo.MustFindAll(ctx, &versions, rel.NewSortAsc("version"))
 	sort.Sort(m.versions)
-
-	fmt.Println(versions)
 
 	for i := range m.versions {
 		if vi < len(versions) && m.versions[i].Version == versions[vi].Version {
@@ -146,8 +144,11 @@ func (m *Migrator) Rollback(ctx context.Context) {
 func (m *Migrator) run(ctx context.Context, migrations []rel.Migration) {
 	adapter := m.repo.Adapter(ctx).(rel.Adapter)
 	for _, migration := range migrations {
-		// TODO: exec script
-		check(adapter.Apply(ctx, migration))
+		if fn, ok := migration.(rel.Do); ok {
+			check(fn(m.repo))
+		} else {
+			check(adapter.Apply(ctx, migration))
+		}
 	}
 
 }

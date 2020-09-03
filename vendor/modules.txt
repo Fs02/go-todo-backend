@@ -1,4 +1,4 @@
-# github.com/Fs02/rel v0.6.1-0.20200901164852-1f41be8177cc
+# github.com/Fs02/rel v0.6.1-0.20200903172418-3af9e733867d
 ## explicit
 github.com/Fs02/rel
 github.com/Fs02/rel/adapter/postgres

@@ -100,44 +100,12 @@ func (s *Schema) DropIndex(table string, name string, options ...IndexOption) {
 	s.add(dropIndex(table, name, options))
 }
 
-// Exec queries using repo.
-// Useful for data migration.
-// func (s *Schema) Exec(func(repo rel.Repository) error) {
-// }
-
-// Options options for table, column and index.
-type Options string
-
-func (o Options) applyTable(table *Table) {
-	table.Options = string(o)
+// Exec queries.
+func (s *Schema) Exec(raw Raw) {
+	s.add(raw)
 }
 
-func (o Options) applyColumn(column *Column) {
-	column.Options = string(o)
+// Do migration using golang codes.
+func (s *Schema) Do(fn Do) {
+	s.add(fn)
 }
-
-func (o Options) applyIndex(index *Index) {
-	index.Options = string(o)
-}
-
-func (o Options) applyKey(key *Key) {
-	key.Options = string(o)
-}
-
-// Optional option.
-// when used with create table, will create table only if it's not exists.
-// when used with drop table, will drop table only if it's exists.
-type Optional bool
-
-func (o Optional) applyTable(table *Table) {
-	table.Optional = bool(o)
-}
-
-func (o Optional) applyIndex(index *Index) {
-	index.Optional = bool(o)
-}
-
-// Raw string
-type Raw string
-
-func (r Raw) internalTableDefinition() {}
