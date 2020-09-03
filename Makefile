@@ -3,14 +3,10 @@ export DOCKER_REGISTRY	?= docker.pkg.github.com/fs02/go-todo-backend
 export DEPLOY			?= api
 
 all: build start
-bundle:
-	bundle install --path bundle
-db-create: bundle
-	bundle exec rake db:create
-db-migrate: bundle
-	bundle exec rake db:migrate
-db-rollback: bundle
-	bundle exec rake db:rollback
+db-migrate:
+	export $$(cat .env | grep -v ^\# | xargs) && go run cmd/db/main.go migrate
+db-rollback:
+	export $$(cat .env | grep -v ^\# | xargs) && go run cmd/db/main.go rollback
 gen:
 	go generate ./...
 build: gen

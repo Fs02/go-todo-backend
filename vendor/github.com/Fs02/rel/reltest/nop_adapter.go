@@ -7,7 +7,6 @@ import (
 )
 
 type nopAdapter struct {
-	count int
 }
 
 func (na *nopAdapter) Instrumentation(instrumenter rel.Instrumenter) {
@@ -33,11 +32,11 @@ func (na *nopAdapter) Delete(ctx context.Context, query rel.Query) (int, error) 
 	return 1, nil
 }
 
-func (na *nopAdapter) Insert(ctx context.Context, query rel.Query, mutates map[string]rel.Mutate) (interface{}, error) {
+func (na *nopAdapter) Insert(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate) (interface{}, error) {
 	return 1, nil
 }
 
-func (na *nopAdapter) InsertAll(ctx context.Context, query rel.Query, fields []string, bulkMutates []map[string]rel.Mutate) ([]interface{}, error) {
+func (na *nopAdapter) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate) ([]interface{}, error) {
 	var (
 		ids = make([]interface{}, len(bulkMutates))
 	)
@@ -59,6 +58,10 @@ func (na *nopAdapter) Rollback(ctx context.Context) error {
 
 func (na *nopAdapter) Update(ctx context.Context, query rel.Query, mutates map[string]rel.Mutate) (int, error) {
 	return 1, nil
+}
+
+func (na *nopAdapter) Apply(ctx context.Context, migration rel.Migration) error {
+	return nil
 }
 
 type nopCursor struct {

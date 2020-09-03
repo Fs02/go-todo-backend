@@ -3,7 +3,7 @@ module github.com/Fs02/go-todo-backend
 go 1.14
 
 require (
-	github.com/Fs02/rel v0.5.0
+	github.com/Fs02/rel v0.6.1-0.20200903172418-3af9e733867d
 	github.com/azer/snakecase v1.0.0 // indirect
 	github.com/go-chi/chi v3.3.2+incompatible
 	github.com/goware/cors v1.1.1

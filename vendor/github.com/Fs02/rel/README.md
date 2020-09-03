@@ -16,10 +16,11 @@ REL is golang orm-ish database layer for layered architecture. It's testable and
 - Elegant, yet extendable query builder with mix of syntactic sugar.
 - Supports Eager loading.
 - Supports nested transactions.
+- Composite Primary Key.
 - Multi adapter.
 - Soft Deletion.
 - Pagination.
-
+- Schema Migration.
 
 ## Install
 
@@ -30,6 +31,10 @@ go get github.com/Fs02/rel
 ## Getting Started
 
 - Guides [https://fs02.github.io/rel](https://fs02.github.io/rel)
+
+## Examples
+
+- [go-todo-backend](https://github.com/Fs02/go-todo-backend) - Todo Backend
 
 ## License
 

@@ -27,6 +27,6 @@ func (d *Delete) ForType(typ string) *Delete {
 // ExpectDelete to be called.
 func ExpectDelete(r *Repository, options []rel.Cascade) *Delete {
 	return &Delete{
-		Expect: newExpect(r, "Delete", []interface{}{mock.Anything, mock.Anything, options}, []interface{}{nil}),
+		Expect: newExpect(r, "Delete", []interface{}{r.ctxData, mock.Anything, options}, []interface{}{nil}),
 	}
 }

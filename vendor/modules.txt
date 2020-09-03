@@ -1,8 +1,9 @@
-# github.com/Fs02/rel v0.5.0
+# github.com/Fs02/rel v0.6.1-0.20200903172418-3af9e733867d
 ## explicit
 github.com/Fs02/rel
 github.com/Fs02/rel/adapter/postgres
 github.com/Fs02/rel/adapter/sql
+github.com/Fs02/rel/migrator
 github.com/Fs02/rel/reltest
 github.com/Fs02/rel/where
 # github.com/azer/snakecase v1.0.0

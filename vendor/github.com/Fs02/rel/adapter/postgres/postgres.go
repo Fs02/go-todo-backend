@@ -15,6 +15,7 @@ package postgres
 import (
 	"context"
 	db "database/sql"
+	"time"
 
 	"github.com/Fs02/rel"
 	"github.com/Fs02/rel/adapter/sql"
@@ -25,20 +26,26 @@ type Adapter struct {
 	*sql.Adapter
 }
 
-var _ rel.Adapter = (*Adapter)(nil)
+var (
+	_ rel.Adapter = (*Adapter)(nil)
 
-// New is postgres adapter constructor.
+	// Config for postgres adapter.
+	Config = sql.Config{
+		Placeholder:         "$",
+		EscapeChar:          "\"",
+		Ordinal:             true,
+		InsertDefaultValues: true,
+		ErrorFunc:           errorFunc,
+		MapColumnFunc:       mapColumnFunc,
+	}
+)
+
+// New postgres adapter using existing connection.
 func New(database *db.DB) *Adapter {
 	return &Adapter{
 		Adapter: &sql.Adapter{
-			Config: &sql.Config{
-				Placeholder:         "$",
-				EscapeChar:          "\"",
-				Ordinal:             true,
-				InsertDefaultValues: true,
-				ErrorFunc:           errorFunc,
-			},
-			DB: database,
+			Config: Config,
+			DB:     database,
 		},
 	}
 }
@@ -50,10 +57,10 @@ func Open(dsn string) (*Adapter, error) {
 }
 
 // Insert inserts a record to database and returns its id.
-func (adapter *Adapter) Insert(ctx context.Context, query rel.Query, mutates map[string]rel.Mutate) (interface{}, error) {
+func (adapter *Adapter) Insert(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate) (interface{}, error) {
 	var (
 		id              int64
-		statement, args = sql.NewBuilder(adapter.Config).Returning("id").Insert(query.Table, mutates)
+		statement, args = sql.NewBuilder(adapter.Config).Returning(primaryField).Insert(query.Table, mutates)
 		rows, err       = adapter.query(ctx, statement, args)
 	)
 
@@ -66,10 +73,10 @@ func (adapter *Adapter) Insert(ctx context.Context, query rel.Query, mutates map
 }
 
 // InsertAll inserts multiple records to database and returns its ids.
-func (adapter *Adapter) InsertAll(ctx context.Context, query rel.Query, fields []string, bulkMutates []map[string]rel.Mutate) ([]interface{}, error) {
+func (adapter *Adapter) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate) ([]interface{}, error) {
 	var (
 		ids             []interface{}
-		statement, args = sql.NewBuilder(adapter.Config).Returning("id").InsertAll(query.Table, fields, bulkMutates)
+		statement, args = sql.NewBuilder(adapter.Config).Returning(primaryField).InsertAll(query.Table, fields, bulkMutates)
 		rows, err       = adapter.query(ctx, statement, args)
 	)
 
@@ -143,4 +150,34 @@ func errorFunc(err error) error {
 	default:
 		return err
 	}
+}
+
+func mapColumnFunc(column *rel.Column) (string, int, int) {
+	var (
+		typ  string
+		m, n int
+	)
+
+	// postgres specific
+	column.Unsigned = false
+	if column.Default == "" {
+		column.Default = nil
+	}
+
+	switch column.Type {
+	case rel.ID:
+		typ = "SERIAL NOT NULL PRIMARY KEY"
+	case rel.DateTime:
+		typ = "TIMESTAMPTZ"
+		if t, ok := column.Default.(time.Time); ok {
+			column.Default = t.Format("2006-01-02 15:04:05")
+		}
+	case rel.Int, rel.BigInt, rel.Text:
+		column.Limit = 0
+		typ, m, n = sql.MapColumn(column)
+	default:
+		typ, m, n = sql.MapColumn(column)
+	}
+
+	return typ, m, n
 }

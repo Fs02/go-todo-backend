@@ -36,6 +36,8 @@ func Build(table string, queriers ...Querier) Query {
 			q.Build(&query)
 		case Unscoped:
 			q.Build(&query)
+		case Reload:
+			q.Build(&query)
 		case SQLQuery:
 			q.Build(&query)
 		}
@@ -61,6 +63,7 @@ type Query struct {
 	LimitQuery    Limit
 	LockQuery     Lock
 	UnscopedQuery Unscoped
+	ReloadQuery   Reload
 	SQLQuery      SQLQuery
 }
 
@@ -101,6 +104,8 @@ func (q Query) Build(query *Query) {
 		if q.LockQuery != "" {
 			query.LockQuery = q.LockQuery
 		}
+
+		query.ReloadQuery = q.ReloadQuery
 	}
 }
 
@@ -257,6 +262,12 @@ func (q Query) Unscoped() Query {
 	return q
 }
 
+// Reload force reloading association on preload.
+func (q Query) Reload() Query {
+	q.ReloadQuery = true
+	return q
+}
+
 // Select query create a query with chainable syntax, using select as the starting point.
 func Select(fields ...string) Query {
 	return Query{
@@ -325,12 +336,18 @@ func (o Offset) Build(query *Query) {
 	query.OffsetQuery = o
 }
 
-// Limit query.
+// Limit options.
+// When passed as query, it limits returned result from database.
+// When passed as column option, it sets the maximum size of the string/text/binary/integer columns.
 type Limit int
 
 // Build query.
 func (l Limit) Build(query *Query) {
 	query.LimitQuery = l
+}
+
+func (l Limit) applyColumn(column *Column) {
+	column.Limit = int(l)
 }
 
 // Lock query.
