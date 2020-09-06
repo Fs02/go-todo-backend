@@ -3,7 +3,10 @@ go:
   - "1.14.x"
 env:
   - COVER=-coverprofile=c.out
+before_script:
+  - go install github.com/Fs02/rel/cmd/rel
 script:
+  - rel migrate
   - go test -race $COVER ./...
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
