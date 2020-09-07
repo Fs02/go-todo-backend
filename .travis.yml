@@ -1,10 +1,10 @@
 language: go
 go:
-  - "1.14.x"
+  - "1.15.x"
 env:
   - COVER=-coverprofile=c.out
 before_script:
-  - go install github.com/Fs02/rel/cmd/rel
+  - go get github.com/Fs02/rel/cmd/rel
 script:
   - rel migrate
   - go test -race $COVER ./...
