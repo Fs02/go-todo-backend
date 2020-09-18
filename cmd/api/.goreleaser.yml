@@ -2,7 +2,9 @@ before:
   hooks:
     - go mod download
 builds:
-- env:
+- binary: api
+  main: ./cmd/api/main.go
+  env:
     - CGO_ENABLED=0
   goos:
     - linux
