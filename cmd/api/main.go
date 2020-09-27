@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/Fs02/go-todo-backend/api"
-	"github.com/Fs02/rel"
-	"github.com/Fs02/rel/adapter/postgres"
+	"github.com/go-rel/rel"
+	"github.com/go-rel/rel/adapter/postgres"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )

@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	"github.com/Fs02/go-todo-backend/todos"
-	"github.com/Fs02/rel"
-	"github.com/Fs02/rel/where"
 	"github.com/go-chi/chi"
+	"github.com/go-rel/rel"
+	"github.com/go-rel/rel/where"
 	"go.uber.org/zap"
 )
 

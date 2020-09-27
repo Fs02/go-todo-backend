@@ -3,7 +3,7 @@ package scores
 import (
 	"context"
 
-	"github.com/Fs02/rel"
+	"github.com/go-rel/rel"
 )
 
 //go:generate mockery --all --case=underscore --output scorestest --outpkg scorestest

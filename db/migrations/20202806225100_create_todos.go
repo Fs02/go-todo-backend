@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/Fs02/rel"
+	"github.com/go-rel/rel"
 )
 
 // MigrateCreateTodos definition

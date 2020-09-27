@@ -3,7 +3,7 @@ package todos
 import (
 	"context"
 
-	"github.com/Fs02/rel"
+	"github.com/go-rel/rel"
 )
 
 type clear struct {

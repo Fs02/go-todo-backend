@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Fs02/go-todo-backend/scores"
-	"github.com/Fs02/rel"
+	"github.com/go-rel/rel"
 	"go.uber.org/zap"
 )
 

@@ -3,8 +3,8 @@ module github.com/Fs02/go-todo-backend
 go 1.14
 
 require (
-	github.com/Fs02/rel v0.7.1-0.20200927141701-5c7e4bb33502
 	github.com/go-chi/chi v3.3.2+incompatible
+	github.com/go-rel/rel v0.7.1-0.20200927165100-4e9c4ca90ac5
 	github.com/goware/cors v1.1.1
 	github.com/lib/pq v1.8.0
 	github.com/stretchr/testify v1.6.1

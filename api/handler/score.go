@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/Fs02/go-todo-backend/scores"
-	"github.com/Fs02/rel"
 	"github.com/go-chi/chi"
+	"github.com/go-rel/rel"
 )
 
 // Score for score endpoints.

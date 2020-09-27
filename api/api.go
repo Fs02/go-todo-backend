@@ -4,9 +4,9 @@ import (
 	"github.com/Fs02/go-todo-backend/api/handler"
 	"github.com/Fs02/go-todo-backend/scores"
 	"github.com/Fs02/go-todo-backend/todos"
-	"github.com/Fs02/rel"
 	"github.com/go-chi/chi"
 	chimid "github.com/go-chi/chi/middleware"
+	"github.com/go-rel/rel"
 	"github.com/goware/cors"
 )
 

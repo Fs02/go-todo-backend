@@ -4,7 +4,7 @@ import (
 	context "context"
 
 	todos "github.com/Fs02/go-todo-backend/todos"
-	rel "github.com/Fs02/rel"
+	rel "github.com/go-rel/rel"
 	mock "github.com/stretchr/testify/mock"
 )
 

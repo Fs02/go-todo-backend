@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Fs02/rel"
+	"github.com/go-rel/rel"
 )
 
 type earn struct {
