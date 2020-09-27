@@ -5,7 +5,7 @@ package todostest
 import (
 	context "context"
 
-	rel "github.com/Fs02/rel"
+	rel "github.com/go-rel/rel"
 	mock "github.com/stretchr/testify/mock"
 
 	todos "github.com/Fs02/go-todo-backend/todos"

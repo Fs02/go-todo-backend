@@ -7,7 +7,7 @@ import (
 
 	"github.com/Fs02/go-todo-backend/api/handler"
 	"github.com/Fs02/go-todo-backend/scores"
-	"github.com/Fs02/rel/reltest"
+	"github.com/go-rel/rel/reltest"
 	"github.com/stretchr/testify/assert"
 )
 

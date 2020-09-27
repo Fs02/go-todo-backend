@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/Fs02/go-todo-backend/scores/scorestest"
-	"github.com/Fs02/rel"
+	"github.com/go-rel/rel"
 
-	"github.com/Fs02/rel/reltest"
+	"github.com/go-rel/rel/reltest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

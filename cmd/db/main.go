@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/Fs02/go-todo-backend/db/migrations"
-	"github.com/Fs02/rel"
-	"github.com/Fs02/rel/adapter/postgres"
-	"github.com/Fs02/rel/migrator"
+	"github.com/go-rel/rel"
+	"github.com/go-rel/rel/adapter/postgres"
+	"github.com/go-rel/rel/migrator"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
