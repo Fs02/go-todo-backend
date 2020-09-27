@@ -1,4 +1,4 @@
-# github.com/Fs02/rel v0.6.1-0.20200903172418-3af9e733867d
+# github.com/Fs02/rel v0.7.1-0.20200927141701-5c7e4bb33502
 ## explicit
 github.com/Fs02/rel
 github.com/Fs02/rel/adapter/postgres
@@ -6,9 +6,6 @@ github.com/Fs02/rel/adapter/sql
 github.com/Fs02/rel/migrator
 github.com/Fs02/rel/reltest
 github.com/Fs02/rel/where
-# github.com/azer/snakecase v1.0.0
-## explicit
-github.com/azer/snakecase
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/go-chi/chi v3.3.2+incompatible
@@ -18,18 +15,20 @@ github.com/go-chi/chi/middleware
 # github.com/goware/cors v1.1.1
 ## explicit
 github.com/goware/cors
-# github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
+# github.com/jinzhu/inflection v1.0.0
 github.com/jinzhu/inflection
-# github.com/lib/pq v1.7.0
+# github.com/lib/pq v1.8.0
 ## explicit
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/objx v0.2.0
+# github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
+github.com/serenize/snaker
+# github.com/stretchr/objx v0.3.0
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.4.0
+# github.com/stretchr/testify v1.6.1
 ## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
@@ -49,13 +48,9 @@ go.uber.org/zap/zapcore
 ## explicit
 # golang.org/x/mod v0.3.0
 ## explicit
-# golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
-## explicit
-# golang.org/x/text v0.3.2
-## explicit
 # golang.org/x/tools v0.0.0-20200618134242-20370b0cb4b2
 ## explicit
-# gopkg.in/yaml.v2 v2.2.2
-gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+gopkg.in/yaml.v3
 # honnef.co/go/tools v0.0.1-2020.1.4
 ## explicit
