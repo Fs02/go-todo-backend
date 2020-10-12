@@ -25,12 +25,14 @@ type associationKey struct {
 }
 
 type associationData struct {
-	typ             AssociationType
-	targetIndex     []int
-	referenceColumn string
-	referenceIndex  int
-	foreignField    string
-	foreignIndex    int
+	typ            AssociationType
+	targetIndex    []int
+	referenceField string
+	referenceIndex int
+	foreignField   string
+	foreignIndex   int
+	through        string
+	autosave       bool
 }
 
 var associationCache sync.Map
@@ -109,7 +111,7 @@ func (a Association) IsZero() bool {
 
 // ReferenceField of the association.
 func (a Association) ReferenceField() string {
-	return a.data.referenceColumn
+	return a.data.referenceField
 }
 
 // ReferenceValue of the association.
@@ -126,7 +128,7 @@ func (a Association) ForeignField() string {
 // It'll panic if association type is has many.
 func (a Association) ForeignValue() interface{} {
 	if a.Type() == HasMany {
-		panic("cannot infer foreign value for has many association")
+		panic("rel: cannot infer foreign value for has many or many to many association")
 	}
 
 	var (
@@ -138,6 +140,16 @@ func (a Association) ForeignValue() interface{} {
 	}
 
 	return indirect(rv.Field(a.data.foreignIndex))
+}
+
+// Through return intermediary association.
+func (a Association) Through() string {
+	return a.data.through
+}
+
+// Autosave setting when parent is created/updated/deleted.
+func (a Association) Autosave() bool {
+	return a.data.autosave
 }
 
 func newAssociation(rv reflect.Value, index int) Association {
@@ -171,8 +183,14 @@ func extractAssociationData(rt reflect.Type, index int) associationData {
 		fName     = fieldName(sf)
 		assocData = associationData{
 			targetIndex: sf.Index,
+			through:     sf.Tag.Get("through"),
+			autosave:    sf.Tag.Get("autosave") == "true",
 		}
 	)
+
+	if assocData.autosave && assocData.through != "" {
+		panic("rel: autosave is not supported for has one/has many through association")
+	}
 
 	for ft.Kind() == reflect.Ptr || ft.Kind() == reflect.Slice {
 		ft = ft.Elem()
@@ -185,7 +203,11 @@ func extractAssociationData(rt reflect.Type, index int) associationData {
 
 	// Try to guess ref and fk if not defined.
 	if ref == "" || fk == "" {
-		if _, isBelongsTo := refDocData.index[fName+"_id"]; isBelongsTo {
+		// TODO: replace "id" with inferred primary field
+		if assocData.through != "" {
+			ref = "id"
+			fk = "id"
+		} else if _, isBelongsTo := refDocData.index[fName+"_id"]; isBelongsTo {
 			ref = fName + "_id"
 			fk = "id"
 		} else {
@@ -198,7 +220,7 @@ func extractAssociationData(rt reflect.Type, index int) associationData {
 		panic("rel: references (" + ref + ") field not found ")
 	} else {
 		assocData.referenceIndex = id
-		assocData.referenceColumn = ref
+		assocData.referenceField = ref
 	}
 
 	if id, exist := fkDocData.index[fk]; !exist {
@@ -209,11 +231,10 @@ func extractAssociationData(rt reflect.Type, index int) associationData {
 	}
 
 	// guess assoc type
-	if sf.Type.Kind() == reflect.Slice ||
-		(sf.Type.Kind() == reflect.Ptr && sf.Type.Elem().Kind() == reflect.Slice) {
+	if sf.Type.Kind() == reflect.Slice || (sf.Type.Kind() == reflect.Ptr && sf.Type.Elem().Kind() == reflect.Slice) {
 		assocData.typ = HasMany
 	} else {
-		if len(assocData.referenceColumn) > len(assocData.foreignField) {
+		if len(assocData.referenceField) > len(assocData.foreignField) {
 			assocData.typ = BelongsTo
 		} else {
 			assocData.typ = HasOne
