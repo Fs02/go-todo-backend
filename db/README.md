@@ -1,3 +1,3 @@
 # db
 
-Contains file required for building db schema.
+Contains file required for building [database migration](https://go-rel.github.io/migration/).

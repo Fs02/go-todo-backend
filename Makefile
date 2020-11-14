@@ -4,9 +4,9 @@ export DEPLOY			?= api
 
 all: build start
 db-migrate:
-	export $$(cat .env | grep -v ^\# | xargs) && go run cmd/db/main.go migrate
+	rel migrate
 db-rollback:
-	export $$(cat .env | grep -v ^\# | xargs) && go run cmd/db/main.go rollback
+	rel rollback
 gen:
 	go generate ./...
 build: gen

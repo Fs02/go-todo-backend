@@ -22,6 +22,7 @@ Feature:
 ### Prerequisite
 
 1. Install [mockery](https://github.com/vektra/mockery#installation) for interface mock generation.
+2. Install [rel cli](https://go-rel.github.io/migration/#running-migration) for database migration.
 
 ### Running
 
@@ -29,10 +30,13 @@ Feature:
     ```
     cp .env.sample .env
     ```
-2. Create a database and update `.env`.
+2. Start postgresql and create database.
+    ```
+    docker-compose up -d
+    ```
 2. Prepare database schema.
     ```
-    make migrate
+    rel migrate
     ```
 3. Build and Running
     ```
