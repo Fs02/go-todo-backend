@@ -10,7 +10,7 @@ func MigrateCreatePoints(schema *rel.Schema) {
 		t.ID("id")
 		t.DateTime("created_at")
 		t.DateTime("updated_at")
-		t.Int("name")
+		t.String("name")
 		t.Int("count")
 		t.Int("score_id", rel.Unsigned(true))
 
