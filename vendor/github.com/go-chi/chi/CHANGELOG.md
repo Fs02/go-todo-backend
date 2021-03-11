@@ -1,5 +1,79 @@
 # Changelog
 
+## v4.1.2 (2020-06-02)
+
+- fix that handles MethodNotAllowed with path variables, thank you @caseyhadden for your contribution
+- fix to replace nested wildcards correctly in RoutePattern, thank you @@unmultimedio for your contribution
+- History of changes: see https://github.com/go-chi/chi/compare/v4.1.1...v4.1.2
+
+
+## v4.1.1 (2020-04-16)
+
+- fix for issue https://github.com/go-chi/chi/issues/411 which allows for overlapping regexp
+  route to the correct handler through a recursive tree search, thanks to @Jahaja for the PR/fix!
+- new middleware.RouteHeaders as a simple router for request headers with wildcard support
+- History of changes: see https://github.com/go-chi/chi/compare/v4.1.0...v4.1.1
+
+
+## v4.1.0 (2020-04-1)
+
+- middleware.LogEntry: Write method on interface now passes the response header
+  and an extra interface type useful for custom logger implementations.
+- middleware.WrapResponseWriter: minor fix
+- middleware.Recoverer: a bit prettier
+- History of changes: see https://github.com/go-chi/chi/compare/v4.0.4...v4.1.0
+
+
+## v4.0.4 (2020-03-24)
+
+- middleware.Recoverer: new pretty stack trace printing (https://github.com/go-chi/chi/pull/496)
+- a few minor improvements and fixes
+- History of changes: see https://github.com/go-chi/chi/compare/v4.0.3...v4.0.4
+
+
+## v4.0.3 (2020-01-09)
+
+- core: fix regexp routing to include default value when param is not matched
+- middleware: rewrite of middleware.Compress
+- middleware: suppress http.ErrAbortHandler in middleware.Recoverer
+- History of changes: see https://github.com/go-chi/chi/compare/v4.0.2...v4.0.3
+
+
+## v4.0.2 (2019-02-26)
+
+- Minor fixes
+- History of changes: see https://github.com/go-chi/chi/compare/v4.0.1...v4.0.2
+
+
+## v4.0.1 (2019-01-21)
+
+- Fixes issue with compress middleware: #382 #385
+- History of changes: see https://github.com/go-chi/chi/compare/v4.0.0...v4.0.1
+
+
+## v4.0.0 (2019-01-10)
+
+- chi v4 requires Go 1.10.3+ (or Go 1.9.7+) - we have deprecated support for Go 1.7 and 1.8
+- router: respond with 404 on router with no routes (#362)
+- router: additional check to ensure wildcard is at the end of a url pattern (#333)
+- middleware: deprecate use of http.CloseNotifier (#347)
+- middleware: fix RedirectSlashes to include query params on redirect (#334)
+- History of changes: see https://github.com/go-chi/chi/compare/v3.3.4...v4.0.0
+
+
+## v3.3.4 (2019-01-07)
+
+- Minor middleware improvements. No changes to core library/router. Moving v3 into its
+- own branch as a version of chi for Go 1.7, 1.8, 1.9, 1.10, 1.11
+- History of changes: see https://github.com/go-chi/chi/compare/v3.3.3...v3.3.4
+
+
+## v3.3.3 (2018-08-27)
+
+- Minor release
+- See https://github.com/go-chi/chi/compare/v3.3.2...v3.3.3
+
+
 ## v3.3.2 (2017-12-22)
 
 - Support to route trailing slashes on mounted sub-routers (#281)
