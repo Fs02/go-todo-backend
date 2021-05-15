@@ -193,13 +193,16 @@ func (r *Repository) ExpectUpdate(mutators ...rel.Mutator) *Mutate {
 }
 
 // UpdateAll provides a mock function with given fields: query
-func (r *Repository) UpdateAll(ctx context.Context, query rel.Query, mutates ...rel.Mutate) error {
-	return r.mock.Called(fetchContext(ctx), query, mutates).Error(0)
+func (r *Repository) UpdateAll(ctx context.Context, query rel.Query, mutates ...rel.Mutate) (int, error) {
+	ret := r.mock.Called(fetchContext(ctx), query, mutates)
+	return ret.Int(0), ret.Error(1)
 }
 
 // MustUpdateAll provides a mock function with given fields: query
-func (r *Repository) MustUpdateAll(ctx context.Context, query rel.Query, mutates ...rel.Mutate) {
-	must(r.UpdateAll(ctx, query, mutates...))
+func (r *Repository) MustUpdateAll(ctx context.Context, query rel.Query, mutates ...rel.Mutate) int {
+	updatedCount, err := r.UpdateAll(ctx, query, mutates...)
+	must(err)
+	return updatedCount
 }
 
 // ExpectUpdateAll apply mocks and expectations for UpdateAll
@@ -223,13 +226,16 @@ func (r *Repository) ExpectDelete(options ...rel.Cascade) *Delete {
 }
 
 // DeleteAll provides a mock function with given fields: query
-func (r *Repository) DeleteAll(ctx context.Context, query rel.Query) error {
-	return r.mock.Called(fetchContext(ctx), query).Error(0)
+func (r *Repository) DeleteAll(ctx context.Context, query rel.Query) (int, error) {
+	ret := r.mock.Called(fetchContext(ctx), query)
+	return ret.Int(0), ret.Error(1)
 }
 
 // MustDeleteAll provides a mock function with given fields: query
-func (r *Repository) MustDeleteAll(ctx context.Context, query rel.Query) {
-	must(r.DeleteAll(ctx, query))
+func (r *Repository) MustDeleteAll(ctx context.Context, query rel.Query) int {
+	deletedCount, err := r.DeleteAll(ctx, query)
+	must(err)
+	return deletedCount
 }
 
 // ExpectDeleteAll apply mocks and expectations for DeleteAll
@@ -250,6 +256,26 @@ func (r *Repository) MustPreload(ctx context.Context, records interface{}, field
 // ExpectPreload apply mocks and expectations for Preload
 func (r *Repository) ExpectPreload(field string, queriers ...rel.Querier) *Preload {
 	return ExpectPreload(r, field, queriers)
+}
+
+// Exec raw statement.
+// Returns last inserted id, rows affected and error.
+func (r *Repository) Exec(ctx context.Context, statement string, args ...interface{}) (int, int, error) {
+	ret := r.mock.Called(fetchContext(ctx), statement, args)
+	return ret.Int(0), ret.Int(1), ret.Error(2)
+}
+
+// MustExec raw statement.
+// Returns last inserted id, rows affected and error.
+func (r *Repository) MustExec(ctx context.Context, statement string, args ...interface{}) (int, int) {
+	lastInsertedId, rowsAffected, err := r.Exec(ctx, statement, args...)
+	must(err)
+	return lastInsertedId, rowsAffected
+}
+
+// ExpectExec for mocking Exec
+func (r *Repository) ExpectExec(statement string, args []interface{}) *Exec {
+	return ExpectExec(r, statement, args)
 }
 
 // Transaction provides a mock function with given fields: fn

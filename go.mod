@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/go-rel/rel v0.11.0
+	github.com/go-rel/rel v0.14.0
 	github.com/goware/cors v1.1.1
 	github.com/lib/pq v1.10.0
 	github.com/stretchr/objx v0.3.0 // indirect

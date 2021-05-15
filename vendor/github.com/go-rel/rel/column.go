@@ -6,6 +6,8 @@ type ColumnType string
 const (
 	// ID ColumnType.
 	ID ColumnType = "ID"
+	// BigID ColumnType.
+	BigID ColumnType = "BigID"
 	// Bool ColumnType.
 	Bool ColumnType = "BOOL"
 	// SmallInt ColumnType.
@@ -28,8 +30,6 @@ const (
 	DateTime ColumnType = "DATETIME"
 	// Time ColumnType.
 	Time ColumnType = "TIME"
-	// Timestamp ColumnType.
-	Timestamp ColumnType = "TIMESTAMP"
 )
 
 // Column definition.
