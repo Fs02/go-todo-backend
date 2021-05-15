@@ -56,12 +56,16 @@ func (na *nopAdapter) Rollback(ctx context.Context) error {
 	return nil
 }
 
-func (na *nopAdapter) Update(ctx context.Context, query rel.Query, mutates map[string]rel.Mutate) (int, error) {
+func (na *nopAdapter) Update(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate) (int, error) {
 	return 1, nil
 }
 
 func (na *nopAdapter) Apply(ctx context.Context, migration rel.Migration) error {
 	return nil
+}
+
+func (na *nopAdapter) Exec(ctx context.Context, stmt string, args []interface{}) (int64, int64, error) {
+	return 0, 0, nil
 }
 
 type nopCursor struct {
