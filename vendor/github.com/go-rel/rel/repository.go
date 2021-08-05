@@ -78,10 +78,12 @@ type Repository interface {
 	MustInsert(ctx context.Context, record interface{}, mutators ...Mutator)
 
 	// InsertAll records.
+	// Does not supports application cascade insert.
 	InsertAll(ctx context.Context, records interface{}) error
 
 	// MustInsertAll records.
 	// It'll panic if any error occurred.
+	// Does not supports application cascade insert.
 	MustInsertAll(ctx context.Context, records interface{})
 
 	// Update a record in database.
@@ -92,14 +94,14 @@ type Repository interface {
 	// It'll panic if any error occurred.
 	MustUpdate(ctx context.Context, record interface{}, mutators ...Mutator)
 
-	// UpdateAll records tha match the query.
+	// UpdateAny records tha match the query.
 	// Returns number of updated records and error.
-	UpdateAll(ctx context.Context, query Query, mutates ...Mutate) (int, error)
+	UpdateAny(ctx context.Context, query Query, mutates ...Mutate) (int, error)
 
-	// MustUpdateAll records that match the query.
+	// MustUpdateAny records that match the query.
 	// It'll panic if any error occurred.
 	// Returns number of updated records.
-	MustUpdateAll(ctx context.Context, query Query, mutates ...Mutate) int
+	MustUpdateAny(ctx context.Context, query Query, mutates ...Mutate) int
 
 	// Delete a record.
 	Delete(ctx context.Context, record interface{}, options ...Cascade) error
@@ -108,14 +110,23 @@ type Repository interface {
 	// It'll panic if any error eccured.
 	MustDelete(ctx context.Context, record interface{}, options ...Cascade)
 
-	// DeleteAll records that match the query.
-	// Returns number of deleted records and error.
-	DeleteAll(ctx context.Context, query Query) (int, error)
+	// DeleteAll records.
+	// Does not supports application cascade delete.
+	DeleteAll(ctx context.Context, records interface{}) error
 
-	// MustDeleteAll records that match the query.
+	// MustDeleteAll records.
+	// It'll panic if any error occurred.
+	// Does not supports application cascade delete.
+	MustDeleteAll(ctx context.Context, records interface{})
+
+	// DeleteAny records that match the query.
+	// Returns number of deleted records and error.
+	DeleteAny(ctx context.Context, query Query) (int, error)
+
+	// MustDeleteAny records that match the query.
 	// It'll panic if any error eccured.
 	// Returns number of updated records.
-	MustDeleteAll(ctx context.Context, query Query) int
+	MustDeleteAny(ctx context.Context, query Query) int
 
 	// Preload association with given query.
 	// If association is already loaded, this will do nothing.
@@ -586,7 +597,7 @@ func (r repository) saveHasOne(cw contextWrapper, doc *Document, mutation *Mutat
 			assocMut         = assocMuts.Mutations[0]
 		)
 
-		if loaded {
+		if loaded && (assoc.ForeignField() == "" || !isZero(assoc.ForeignValue())) {
 			filter, err := filterHasOne(assoc, assocDoc)
 			if err != nil {
 				return err
@@ -646,12 +657,12 @@ func (r repository) saveHasMany(cw contextWrapper, doc *Document, mutation *Muta
 
 			if deletedIDs == nil {
 				// if it's nil, then clear old association (used by structset).
-				if _, err := r.deleteAll(cw, col.data.flag, Build(table, filter)); err != nil {
+				if _, err := r.deleteAny(cw, col.data.flag, Build(table, filter)); err != nil {
 					return err
 				}
 			} else if len(deletedIDs) > 0 {
 				filter = filter.AndIn(col.PrimaryField(), deletedIDs...)
-				if _, err := r.deleteAll(cw, col.data.flag, Build(table, filter)); err != nil {
+				if _, err := r.deleteAny(cw, col.data.flag, Build(table, filter)); err != nil {
 					return err
 				}
 			}
@@ -666,10 +677,10 @@ func (r repository) saveHasMany(cw contextWrapper, doc *Document, mutation *Muta
 
 			// When deleted IDs is nil, it's assumed that association will be replaced.
 			// hence any update request is ignored here.
-			if deletedIDs != nil && !isZero(assocDoc.PrimaryValue()) {
+			var fValue, _ = assocDoc.Value(fField)
+			if deletedIDs != nil && !isZero(assocDoc.PrimaryValue()) && !isZero(fValue) {
 				var (
-					fValue, _ = assocDoc.Value(fField)
-					filter    = filterDocument(assocDoc).AndEq(fField, rValue)
+					filter = filterDocument(assocDoc).AndEq(fField, rValue)
 				)
 
 				if rValue != fValue {
@@ -717,8 +728,8 @@ func (r repository) saveHasMany(cw contextWrapper, doc *Document, mutation *Muta
 	return nil
 }
 
-func (r repository) UpdateAll(ctx context.Context, query Query, mutates ...Mutate) (int, error) {
-	finish := r.instrumenter.Observe(ctx, "rel-update-all", "updating multiple records")
+func (r repository) UpdateAny(ctx context.Context, query Query, mutates ...Mutate) (int, error) {
+	finish := r.instrumenter.Observe(ctx, "rel-update-any", "updating multiple records")
 	defer finish(nil)
 
 	var (
@@ -739,8 +750,8 @@ func (r repository) UpdateAll(ctx context.Context, query Query, mutates ...Mutat
 	return updatedCount, err
 }
 
-func (r repository) MustUpdateAll(ctx context.Context, query Query, mutates ...Mutate) int {
-	updatedCount, err := r.UpdateAll(ctx, query, mutates...)
+func (r repository) MustUpdateAny(ctx context.Context, query Query, mutates ...Mutate) int {
+	updatedCount, err := r.UpdateAny(ctx, query, mutates...)
 	must(err)
 	return updatedCount
 }
@@ -784,7 +795,7 @@ func (r repository) delete(cw contextWrapper, doc *Document, filter FilterQuery,
 		}
 	}
 
-	deletedCount, err := r.deleteAll(cw, doc.data.flag, query)
+	deletedCount, err := r.deleteAny(cw, doc.data.flag, query)
 	if err == nil && deletedCount == 0 {
 		err = NotFoundError{}
 	}
@@ -866,7 +877,7 @@ func (r repository) deleteHasMany(cw contextWrapper, doc *Document) error {
 				filter = Eq(fField, rValue).And(filterCollection(col))
 			)
 
-			if _, err := r.deleteAll(cw, col.data.flag, Build(table, filter)); err != nil {
+			if _, err := r.deleteAny(cw, col.data.flag, Build(table, filter)); err != nil {
 				return err
 			}
 		}
@@ -879,24 +890,49 @@ func (r repository) MustDelete(ctx context.Context, record interface{}, options 
 	must(r.Delete(ctx, record, options...))
 }
 
-func (r repository) DeleteAll(ctx context.Context, query Query) (int, error) {
-	finish := r.instrumenter.Observe(ctx, "rel-delete-all", "deleting multiple records")
+func (r repository) DeleteAll(ctx context.Context, records interface{}) error {
+	finish := r.instrumenter.Observe(ctx, "rel-delete-all", "deleting records")
+	defer finish(nil)
+
+	var (
+		cw  = fetchContext(ctx, r.rootAdapter)
+		col = NewCollection(records)
+	)
+
+	if col.Len() == 0 {
+		return nil
+	}
+
+	var (
+		query  = Build(col.Table(), filterCollection(col))
+		_, err = r.deleteAny(cw, col.data.flag, query)
+	)
+
+	return err
+}
+
+func (r repository) MustDeleteAll(ctx context.Context, records interface{}) {
+	must(r.DeleteAll(ctx, records))
+}
+
+func (r repository) DeleteAny(ctx context.Context, query Query) (int, error) {
+	finish := r.instrumenter.Observe(ctx, "rel-delete-any", "deleting multiple records")
 	defer finish(nil)
 
 	var (
 		cw = fetchContext(ctx, r.rootAdapter)
 	)
 
-	return r.deleteAll(cw, Invalid, query)
+	return r.deleteAny(cw, Invalid, query)
 }
 
-func (r repository) MustDeleteAll(ctx context.Context, query Query) int {
-	deletedCount, err := r.DeleteAll(ctx, query)
+func (r repository) MustDeleteAny(ctx context.Context, query Query) int {
+	deletedCount, err := r.DeleteAny(ctx, query)
 	must(err)
 	return deletedCount
 }
 
-func (r repository) deleteAll(cw contextWrapper, flag DocumentFlag, query Query) (int, error) {
+func (r repository) deleteAny(cw contextWrapper, flag DocumentFlag, query Query) (int, error) {
 	if flag.Is(HasDeletedAt) {
 		mutates := map[string]Mutate{"deleted_at": Set("deleted_at", now())}
 		return cw.adapter.Update(cw.ctx, query, "", mutates)

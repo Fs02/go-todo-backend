@@ -11,5 +11,5 @@ type clear struct {
 }
 
 func (c clear) Clear(ctx context.Context) {
-	c.repository.MustDeleteAll(ctx, rel.From("todos"))
+	c.repository.MustDeleteAny(ctx, rel.From("todos"))
 }

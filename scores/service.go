@@ -6,7 +6,7 @@ import (
 	"github.com/go-rel/rel"
 )
 
-//go:generate mockery --all --case=underscore --output scorestest --outpkg scorestest
+//go:generate mockery --name=Service --case=underscore --output scorestest --outpkg scorestest
 
 // Service instance for todo's domain.
 // Any operation done to any of object within this domain should use this service.
