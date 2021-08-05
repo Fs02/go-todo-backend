@@ -4,7 +4,7 @@ github.com/davecgh/go-spew/spew
 ## explicit
 github.com/go-chi/chi
 github.com/go-chi/chi/middleware
-# github.com/go-rel/rel v0.14.0
+# github.com/go-rel/rel v0.17.0
 ## explicit
 github.com/go-rel/rel
 github.com/go-rel/rel/adapter/postgres

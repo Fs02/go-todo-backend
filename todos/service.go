@@ -12,7 +12,7 @@ var (
 	logger, _ = zap.NewProduction(zap.Fields(zap.String("type", "todos")))
 )
 
-//go:generate mockery --all --case=underscore --output todostest --outpkg todostest
+//go:generate mockery --name=Service --case=underscore --output todostest --outpkg todostest
 
 // Service instance for todo's domain.
 // Any operation done to any of object within this domain should use this service.

@@ -16,7 +16,7 @@ func TestClear(t *testing.T) {
 		service    = New(repository, nil)
 	)
 
-	repository.ExpectDeleteAll(rel.From("todos")).Unsafe()
+	repository.ExpectDeleteAny(rel.From("todos")).Unsafe()
 
 	assert.NotPanics(t, func() {
 		service.Clear(ctx)
