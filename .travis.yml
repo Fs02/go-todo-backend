@@ -4,6 +4,7 @@ go:
 env:
   - COVER=-coverprofile=c.out
 script:
+  - go mod tidy
   - go test -race $COVER ./...
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
