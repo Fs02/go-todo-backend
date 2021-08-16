@@ -8,8 +8,8 @@ github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWo
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/go-chi/chi v4.1.2+incompatible h1:fGFk2Gmi/YKXk0OmGfBh0WgmN3XB8lVnEyNz34tQRec=
 github.com/go-chi/chi v4.1.2+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
-github.com/go-rel/rel v0.18.0 h1:FX2up27ys4dvNXZUhseLse0Y7LqqTzEeueRCzfosKOY=
-github.com/go-rel/rel v0.18.0/go.mod h1:tgzX9l1JhGDBHtwUs64LbaOt2+ysKJoHrm18+JHflCA=
+github.com/go-rel/rel v0.19.0 h1:eaVSQwGhaKKo7pEUg56cDpIczVHlDs2TOzlmPcv0B9s=
+github.com/go-rel/rel v0.19.0/go.mod h1:tgzX9l1JhGDBHtwUs64LbaOt2+ysKJoHrm18+JHflCA=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.4.0-rc.1/go.mod h1:ceaxUfeHdC40wWswd/P6IGgMaK3YpKi5j83Wpe3EHw8=
