@@ -1041,7 +1041,7 @@ func (r repository) mapPreloadTargets(sl slice, path []string) (map[interface{}]
 			if assocs.Type() == HasMany {
 				target, targetLoaded = assocs.Collection()
 			} else {
-				target, targetLoaded = assocs.Document()
+				target, targetLoaded = assocs.LazyDocument()
 			}
 
 			target.Reset()
@@ -1079,7 +1079,7 @@ func (r repository) mapPreloadTargets(sl slice, path []string) (map[interface{}]
 					}
 				}
 			} else {
-				if doc, loaded := assocs.Document(); loaded {
+				if doc, loaded := assocs.LazyDocument(); loaded {
 					stack = append(stack, frame{
 						index: top.index + 1,
 						doc:   doc,
