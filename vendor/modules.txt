@@ -16,7 +16,7 @@ github.com/go-rel/rel/where
 github.com/goware/cors
 # github.com/jinzhu/inflection v1.0.0
 github.com/jinzhu/inflection
-# github.com/lib/pq v1.10.2
+# github.com/lib/pq v1.10.3
 ## explicit
 github.com/lib/pq
 github.com/lib/pq/oid
