@@ -9,8 +9,8 @@ import (
 	"github.com/Fs02/go-todo-backend/api/handler"
 	"github.com/Fs02/go-todo-backend/todos"
 	"github.com/Fs02/go-todo-backend/todos/todostest"
-	"github.com/go-rel/rel/reltest"
 	"github.com/go-rel/rel/where"
+	"github.com/go-rel/reltest"
 	"github.com/stretchr/testify/assert"
 )
 

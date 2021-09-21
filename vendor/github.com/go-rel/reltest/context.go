@@ -2,12 +2,17 @@ package reltest
 
 import (
 	"context"
+	"fmt"
 )
 
 type ctxKeyType uint8
 
 type ctxData struct {
 	txDepth int
+}
+
+func (cd ctxData) String() string {
+	return fmt.Sprintf("<Transaction: %d>", cd.txDepth)
 }
 
 var (
