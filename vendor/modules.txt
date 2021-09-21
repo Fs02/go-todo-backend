@@ -9,8 +9,10 @@ github.com/go-chi/chi/middleware
 github.com/go-rel/rel
 github.com/go-rel/rel/adapter/postgres
 github.com/go-rel/rel/adapter/sql
-github.com/go-rel/rel/reltest
 github.com/go-rel/rel/where
+# github.com/go-rel/reltest v0.1.1
+## explicit
+github.com/go-rel/reltest
 # github.com/goware/cors v1.1.1
 ## explicit
 github.com/goware/cors
