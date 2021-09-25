@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/Fs02/go-todo-backend/api"
+	"github.com/go-rel/postgres"
 	"github.com/go-rel/rel"
-	"github.com/go-rel/rel/adapter/postgres"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
@@ -61,7 +61,8 @@ func initRepository() rel.Repository {
 		logger.Fatal(err.Error(), zap.Error(err))
 	}
 	// add to graceful shutdown list.
-	shutdowns = append(shutdowns, adapter.Close)
+	// TODO: fix after rel update
+	// shutdowns = append(shutdowns, adapter.Close)
 
 	repository := rel.New(adapter)
 	repository.Instrumentation(func(ctx context.Context, op string, message string) func(err error) {
