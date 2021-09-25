@@ -1,0 +1,8 @@
+vendor
+.tool-versions
+*.db
+.vscode/
+debug.test
+.idea/
+*.out
+*.test

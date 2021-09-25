@@ -1,26 +1,14 @@
 package sql
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-rel/rel"
 )
 
-// Config holds configuration for adapter.
-type Config struct {
-	Placeholder         string
-	Ordinal             bool
-	InsertDefaultValues bool
-	DropIndexOnTable    bool
-	EscapeChar          string
-	ErrorFunc           func(error) error
-	IncrementFunc       func(Adapter) int
-	IndexToSQL          func(config Config, buffer *Buffer, index rel.Index) bool
-	MapColumnFunc       func(column *rel.Column) (string, int, int)
-}
-
-// MapColumn func.
-func MapColumn(column *rel.Column) (string, int, int) {
+// ColumnMapper function.
+func ColumnMapper(column *rel.Column) (string, int, int) {
 	var (
 		typ        string
 		m, n       int
@@ -73,4 +61,47 @@ func MapColumn(column *rel.Column) (string, int, int) {
 	}
 
 	return typ, m, n
+}
+
+// ExtractString between two string.
+func ExtractString(s, left, right string) string {
+	var (
+		start = strings.Index(s, left)
+		end   = strings.LastIndex(s, right)
+	)
+
+	if start < 0 || end < 0 || start+len(left) >= end {
+		return s
+	}
+
+	return s[start+len(left) : end]
+}
+
+func toInt64(i interface{}) int64 {
+	var result int64
+
+	switch s := i.(type) {
+	case int:
+		result = int64(s)
+	case int64:
+		result = s
+	case int32:
+		result = int64(s)
+	case int16:
+		result = int64(s)
+	case int8:
+		result = int64(s)
+	case uint:
+		result = int64(s)
+	case uint64:
+		result = int64(s)
+	case uint32:
+		result = int64(s)
+	case uint16:
+		result = int64(s)
+	case uint8:
+		result = int64(s)
+	}
+
+	return result
 }
