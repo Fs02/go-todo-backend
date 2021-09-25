@@ -61,8 +61,7 @@ func initRepository() rel.Repository {
 		logger.Fatal(err.Error(), zap.Error(err))
 	}
 	// add to graceful shutdown list.
-	// TODO: fix after rel update
-	// shutdowns = append(shutdowns, adapter.Close)
+	shutdowns = append(shutdowns, adapter.Close)
 
 	repository := rel.New(adapter)
 	repository.Instrumentation(func(ctx context.Context, op string, message string) func(err error) {

@@ -4,18 +4,17 @@ github.com/davecgh/go-spew/spew
 ## explicit
 github.com/go-chi/chi
 github.com/go-chi/chi/middleware
-# github.com/go-rel/postgres v0.0.0-20210925031116-91ccba2a9772
+# github.com/go-rel/postgres v0.1.0
 ## explicit
 github.com/go-rel/postgres
-# github.com/go-rel/rel v0.23.0
+# github.com/go-rel/rel v0.24.0
 ## explicit
 github.com/go-rel/rel
 github.com/go-rel/rel/where
 # github.com/go-rel/reltest v0.1.2
 ## explicit
 github.com/go-rel/reltest
-# github.com/go-rel/sql v0.0.0-20210925030309-1800519ebc56
-## explicit
+# github.com/go-rel/sql v0.1.0
 github.com/go-rel/sql
 github.com/go-rel/sql/builder
 # github.com/goware/cors v1.1.1
