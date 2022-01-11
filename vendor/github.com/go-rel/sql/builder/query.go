@@ -38,7 +38,7 @@ func (q Query) Write(buffer *Buffer, query rel.Query) {
 
 	rootQuery := buffer.Len() == 0
 
-	q.WriteSelect(buffer, query.SelectQuery)
+	q.WriteSelect(buffer, query.Table, query.SelectQuery)
 	q.WriteQuery(buffer, query)
 
 	if rootQuery {
@@ -47,13 +47,13 @@ func (q Query) Write(buffer *Buffer, query rel.Query) {
 }
 
 // WriteSelect SQL to buffer.
-func (q Query) WriteSelect(buffer *Buffer, selectQuery rel.SelectQuery) {
+func (q Query) WriteSelect(buffer *Buffer, table string, selectQuery rel.SelectQuery) {
 	if len(selectQuery.Fields) == 0 {
+		buffer.WriteString("SELECT ")
 		if selectQuery.OnlyDistinct {
-			buffer.WriteString("SELECT DISTINCT *")
-			return
+			buffer.WriteString("DISTINCT ")
 		}
-		buffer.WriteString("SELECT *")
+		buffer.WriteField(table, "*")
 		return
 	}
 
@@ -65,7 +65,7 @@ func (q Query) WriteSelect(buffer *Buffer, selectQuery rel.SelectQuery) {
 
 	l := len(selectQuery.Fields) - 1
 	for i, f := range selectQuery.Fields {
-		buffer.WriteEscape(f)
+		buffer.WriteField(table, f)
 
 		if i < l {
 			buffer.WriteByte(',')
@@ -77,14 +77,14 @@ func (q Query) WriteSelect(buffer *Buffer, selectQuery rel.SelectQuery) {
 func (q Query) WriteQuery(buffer *Buffer, query rel.Query) {
 	q.WriteFrom(buffer, query.Table)
 	q.WriteJoin(buffer, query.Table, query.JoinQuery)
-	q.WriteWhere(buffer, query.WhereQuery)
+	q.WriteWhere(buffer, query.Table, query.WhereQuery)
 
 	if len(query.GroupQuery.Fields) > 0 {
-		q.WriteGroupBy(buffer, query.GroupQuery.Fields)
-		q.WriteHaving(buffer, query.GroupQuery.Filter)
+		q.WriteGroupBy(buffer, query.Table, query.GroupQuery.Fields)
+		q.WriteHaving(buffer, query.Table, query.GroupQuery.Filter)
 	}
 
-	q.WriteOrderBy(buffer, query.SortQuery)
+	q.WriteOrderBy(buffer, query.Table, query.SortQuery)
 	q.WriteLimitOffet(buffer, query.LimitQuery, query.OffsetQuery)
 
 	if query.LockQuery != "" {
@@ -127,6 +127,10 @@ func (q Query) WriteJoin(buffer *Buffer, table string, joins []rel.JoinQuery) {
 			buffer.WriteEscape(from)
 			buffer.WriteString("=")
 			buffer.WriteEscape(to)
+			if !join.Filter.None() {
+				buffer.WriteString(" AND ")
+				q.Filter.Write(buffer, join.Table, join.Filter, q)
+			}
 		}
 
 		buffer.AddArguments(join.Arguments...)
@@ -134,22 +138,22 @@ func (q Query) WriteJoin(buffer *Buffer, table string, joins []rel.JoinQuery) {
 }
 
 // WriteWhere SQL to buffer.
-func (q Query) WriteWhere(buffer *Buffer, filter rel.FilterQuery) {
+func (q Query) WriteWhere(buffer *Buffer, table string, filter rel.FilterQuery) {
 	if filter.None() {
 		return
 	}
 
 	buffer.WriteString(" WHERE ")
-	q.Filter.Write(buffer, filter, q)
+	q.Filter.Write(buffer, table, filter, q)
 }
 
 // WriteGroupBy SQL to buffer.
-func (q Query) WriteGroupBy(buffer *Buffer, fields []string) {
+func (q Query) WriteGroupBy(buffer *Buffer, table string, fields []string) {
 	buffer.WriteString(" GROUP BY ")
 
 	l := len(fields) - 1
 	for i, f := range fields {
-		buffer.WriteEscape(f)
+		buffer.WriteField(table, f)
 
 		if i < l {
 			buffer.WriteByte(',')
@@ -158,17 +162,17 @@ func (q Query) WriteGroupBy(buffer *Buffer, fields []string) {
 }
 
 // WriteHaving SQL to buffer.
-func (q Query) WriteHaving(buffer *Buffer, filter rel.FilterQuery) {
+func (q Query) WriteHaving(buffer *Buffer, table string, filter rel.FilterQuery) {
 	if filter.None() {
 		return
 	}
 
 	buffer.WriteString(" HAVING ")
-	q.Filter.Write(buffer, filter, q)
+	q.Filter.Write(buffer, table, filter, q)
 }
 
 // WriteOrderBy SQL to buffer.
-func (q Query) WriteOrderBy(buffer *Buffer, orders []rel.SortQuery) {
+func (q Query) WriteOrderBy(buffer *Buffer, table string, orders []rel.SortQuery) {
 	var (
 		length = len(orders)
 	)
@@ -183,7 +187,7 @@ func (q Query) WriteOrderBy(buffer *Buffer, orders []rel.SortQuery) {
 			buffer.WriteString(", ")
 		}
 
-		buffer.WriteEscape(order.Field)
+		buffer.WriteField(table, order.Field)
 
 		if order.Asc() {
 			buffer.WriteString(" ASC")

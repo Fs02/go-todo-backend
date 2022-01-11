@@ -13,7 +13,7 @@ type delete []*MockDelete
 
 func (d *delete) register(ctxData ctxData, options ...rel.Cascade) *MockDelete {
 	md := &MockDelete{
-		assert:     &Assert{ctxData: ctxData},
+		assert:     &Assert{ctxData: ctxData, repeatability: 1},
 		argOptions: options,
 	}
 	*d = append(*d, md)

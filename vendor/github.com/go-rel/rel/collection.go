@@ -32,29 +32,7 @@ func (c *Collection) Table() string {
 		return tn.Table()
 	}
 
-	return c.tableName()
-}
-
-func (c Collection) tableName() string {
-	var (
-		rt = c.rt.Elem()
-	)
-
-	// check for cache
-	if name, cached := tablesCache.Load(rt); cached {
-		return name.(string)
-	}
-
-	if rt.Implements(rtTable) {
-		var (
-			v = reflect.Zero(rt).Interface().(table)
-		)
-
-		tablesCache.Store(rt, v.Table())
-		return v.Table()
-	}
-
-	return tableName(rt)
+	return tableName(indirectReflectType(c.rt.Elem()))
 }
 
 // PrimaryFields column name of this collection.
@@ -95,11 +73,14 @@ func (c Collection) PrimaryValues() []interface{} {
 	if index != nil {
 		for i := range index {
 			var (
-				values = make([]interface{}, c.rv.Len())
+				idxLen = c.rv.Len()
+				values = make([]interface{}, 0, idxLen)
 			)
 
-			for j := range values {
-				values[j] = c.rv.Index(j).Field(index[i]).Interface()
+			for j := 0; j < idxLen; j++ {
+				if item := c.rvIndex(j); item.IsValid() {
+					values = append(values, item.Field(index[i]).Interface())
+				}
 			}
 
 			pValues[i] = values
@@ -111,7 +92,11 @@ func (c Collection) PrimaryValues() []interface{} {
 		)
 
 		for i := 0; i < c.rv.Len(); i++ {
-			for j, id := range c.rv.Index(i).Interface().(primary).PrimaryValues() {
+			item := c.rvIndex(i)
+			if !item.IsValid() {
+				continue
+			}
+			for j, id := range item.Interface().(primary).PrimaryValues() {
 				tmp[j] = append(tmp[j], id)
 			}
 		}
@@ -134,9 +119,13 @@ func (c Collection) PrimaryValue() interface{} {
 	panic("rel: composite primary key is not supported")
 }
 
+func (c Collection) rvIndex(index int) reflect.Value {
+	return reflect.Indirect(c.rv.Index(index))
+}
+
 // Get an element from the underlying slice as a document.
 func (c Collection) Get(index int) *Document {
-	return NewDocument(c.rv.Index(index).Addr())
+	return NewDocument(c.rvIndex(index).Addr())
 }
 
 // Len of the underlying slice.
@@ -157,9 +146,13 @@ func (c Collection) Add() *Document {
 		drv   = reflect.Zero(typ)
 	)
 
+	if typ.Kind() == reflect.Ptr && drv.IsNil() {
+		drv = reflect.New(drv.Type().Elem())
+	}
+
 	c.rv.Set(reflect.Append(c.rv, drv))
 
-	return NewDocument(c.rv.Index(index).Addr())
+	return NewDocument(c.rvIndex(index).Addr())
 }
 
 // Truncate collection.
@@ -220,6 +213,6 @@ func newCollection(v interface{}, rv reflect.Value, readonly bool) *Collection {
 		v:    v,
 		rv:   rv,
 		rt:   rt,
-		data: extractDocumentData(rt.Elem(), false),
+		data: extractDocumentData(indirectReflectType(rt.Elem()), false),
 	}
 }

@@ -35,10 +35,53 @@ func main() {
 }
 ```
 
+## Example Replication (Master/Standby)
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/go-rel/primaryreplica"
+	_ "github.com/lib/pq"
+	"github.com/go-rel/postgres"
+	"github.com/go-rel/rel"
+)
+
+func main() {
+	// open postgres connections.
+	adapter := primaryreplica.New(
+		postgres.MustOpen("postgres://postgres@master/rel_test?sslmode=disable"),
+		postgres.MustOpen("postgres://postgres@standby/rel_test?sslmode=disable"),
+	)
+	defer adapter.Close()
+
+	// initialize REL's repo.
+	repo := rel.New(adapter)
+	repo.Ping(context.TODO())
+}
+```
+
 ## Supported Driver
 
 - github.com/lib/pq
+- github.com/jackc/pgx/v4/stdlib
 
 ## Supported Database
 
-- PostgreSQL 9, 10, 11, 12 and 13
+- PostgreSQL 9.6, 10, 11, 12, 13 and 14
+
+## Testing
+
+### Start PostgreSQL server in Docker
+
+```console
+docker run -it --rm -p 5433:5432 -e "POSTGRES_USER=rel" -e "POSTGRES_PASSWORD=test" -e "POSTGRES_DB=rel_test" postgres:14-alpine
+```
+
+### Run tests
+
+```console
+POSTGRESQL_DATABASE="postgres://rel:test@localhost:5433/rel_test" go test ./...
+```

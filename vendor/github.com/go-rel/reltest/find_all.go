@@ -11,7 +11,7 @@ type findAll []*MockFindAll
 
 func (fa *findAll) register(ctxData ctxData, queriers ...rel.Querier) *MockFindAll {
 	mfa := &MockFindAll{
-		assert:   &Assert{ctxData: ctxData},
+		assert:   &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery: rel.Build("", queriers...),
 	}
 	*fa = append(*fa, mfa)

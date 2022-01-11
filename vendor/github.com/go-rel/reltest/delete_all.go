@@ -13,7 +13,7 @@ type deleteAll []*MockDeleteAll
 
 func (da *deleteAll) register(ctxData ctxData) *MockDeleteAll {
 	mda := &MockDeleteAll{
-		assert: &Assert{ctxData: ctxData},
+		assert: &Assert{ctxData: ctxData, repeatability: 1},
 	}
 	*da = append(*da, mda)
 	return mda

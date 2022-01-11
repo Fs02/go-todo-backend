@@ -10,7 +10,7 @@ type aggregate []*MockAggregate
 
 func (a *aggregate) register(ctxData ctxData, query rel.Query, aggregate string, field string) *MockAggregate {
 	ma := &MockAggregate{
-		assert:       &Assert{ctxData: ctxData},
+		assert:       &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery:     query,
 		argAggregate: aggregate,
 		argField:     field,

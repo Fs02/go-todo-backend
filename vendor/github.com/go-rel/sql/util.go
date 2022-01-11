@@ -7,19 +7,22 @@ import (
 	"github.com/go-rel/rel"
 )
 
+// DefaultTimeLayout default time layout.
+const DefaultTimeLayout = "2006-01-02 15:04:05"
+
 // ColumnMapper function.
 func ColumnMapper(column *rel.Column) (string, int, int) {
 	var (
 		typ        string
 		m, n       int
-		timeLayout = "2006-01-02 15:04:05"
+		timeLayout = DefaultTimeLayout
 	)
 
 	switch column.Type {
 	case rel.ID:
-		typ = "INT UNSIGNED AUTO_INCREMENT PRIMARY KEY"
+		typ = "INT UNSIGNED AUTO_INCREMENT"
 	case rel.BigID:
-		typ = "BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY"
+		typ = "BIGINT UNSIGNED AUTO_INCREMENT"
 	case rel.Bool:
 		typ = "BOOL"
 	case rel.Int:
@@ -44,6 +47,8 @@ func ColumnMapper(column *rel.Column) (string, int, int) {
 	case rel.Text:
 		typ = "TEXT"
 		m = column.Limit
+	case rel.JSON:
+		typ = "TEXT"
 	case rel.Date:
 		typ = "DATE"
 		timeLayout = "2006-01-02"

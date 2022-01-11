@@ -51,7 +51,7 @@ func (u Update) Build(table string, primaryField string, mutates map[string]rel.
 
 	if !filter.None() {
 		buffer.WriteString(" WHERE ")
-		u.Filter.Write(&buffer, filter, u.Query)
+		u.Filter.Write(&buffer, table, filter, u.Query)
 	}
 
 	buffer.WriteString(";")

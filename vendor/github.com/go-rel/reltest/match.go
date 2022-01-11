@@ -72,7 +72,7 @@ func matchFilterQuery(a rel.FilterQuery, b rel.FilterQuery) bool {
 	default:
 		if a.Type != b.Type ||
 			a.Field != b.Field ||
-			(a.Value != b.Value && a.Value != Any) ||
+			(!reflect.DeepEqual(a.Value, b.Value) && a.Value != Any) ||
 			len(a.Inner) != len(b.Inner) {
 			return false
 		}
