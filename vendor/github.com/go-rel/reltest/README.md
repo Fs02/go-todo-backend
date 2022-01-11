@@ -34,7 +34,7 @@ func main() {
 	// Mock query
 	repo.ExpectFind(where.Eq("id", 1)).Result(Movie{ID: 1, Title: "Golang"})
 
-    	// Application code
+	// Application code
 	var movie Movie
 	repo.MustFind(context.Background(), &movie, where.Eq("id", 1))
 	fmt.Println(movie.Title)

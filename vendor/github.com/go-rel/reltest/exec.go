@@ -10,7 +10,7 @@ type exec []*MockExec
 
 func (e *exec) register(ctxData ctxData, statement string, args ...interface{}) *MockExec {
 	me := &MockExec{
-		assert:       &Assert{ctxData: ctxData},
+		assert:       &Assert{ctxData: ctxData, repeatability: 1},
 		argStatement: statement,
 		argArgs:      args,
 	}

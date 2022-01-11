@@ -187,6 +187,10 @@ func (fq FilterQuery) or(other FilterQuery) FilterQuery {
 	return Or(fq, other)
 }
 
+func (fq FilterQuery) applyIndex(index *Index) {
+	index.Filter = fq
+}
+
 // AndEq append equal expression using and.
 func (fq FilterQuery) AndEq(field string, value interface{}) FilterQuery {
 	return fq.and(Eq(field, value))
@@ -329,7 +333,7 @@ func And(inner ...FilterQuery) FilterQuery {
 	}
 }
 
-// Or compares other filters using and.
+// Or compares other filters using or.
 func Or(inner ...FilterQuery) FilterQuery {
 	if len(inner) == 1 {
 		return inner[0]

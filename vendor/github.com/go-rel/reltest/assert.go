@@ -20,14 +20,27 @@ type Assert struct {
 	optional      bool
 }
 
+// Once set max calls to one time.
 func (a *Assert) Once() {
 	a.Times(1)
 }
 
+// Twice set max calls to two times.
+func (a *Assert) Twice() {
+	a.Times(2)
+}
+
+// Many set max calls to unlimited times.
+func (a *Assert) Many() {
+	a.Times(0)
+}
+
+// Times set number of allowed calls.
 func (a *Assert) Times(times int) {
 	a.repeatability = times
 }
 
+// Maybe allow calls to be skipped.
 func (a *Assert) Maybe() {
 	a.optional = true
 }
@@ -51,7 +64,7 @@ func (a Assert) assert(t T, mock interface{}) bool {
 	}
 
 	t.Helper()
-	if a.repeatability > 0 {
+	if a.repeatability > 1 {
 		t.Errorf("FAIL: Need to make %d more call(s) to satisfy mock:\n%s", a.repeatability-a.totalCalls, mock)
 	} else {
 		t.Errorf("FAIL: Mock defined but not called:\n%s", mock)

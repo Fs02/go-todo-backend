@@ -13,7 +13,7 @@ type iterate []*MockIterate
 
 func (i *iterate) register(ctxData ctxData, query rel.Query, options ...rel.IteratorOption) *MockIterate {
 	mi := &MockIterate{
-		assert:     &Assert{ctxData: ctxData},
+		assert:     &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery:   query,
 		argOptions: options,
 	}

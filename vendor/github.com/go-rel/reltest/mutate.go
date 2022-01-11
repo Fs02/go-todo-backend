@@ -13,7 +13,7 @@ type mutate []*MockMutate
 
 func (m *mutate) register(name string, ctxData ctxData, mutators ...rel.Mutator) *MockMutate {
 	mm := &MockMutate{
-		assert:      &Assert{ctxData: ctxData},
+		assert:      &Assert{ctxData: ctxData, repeatability: 1},
 		name:        name,
 		argMutators: mutators,
 	}
@@ -27,7 +27,7 @@ func (m mutate) execute(name string, ctx context.Context, record interface{}, mu
 			(mm.argRecordType == "" || mm.argRecordType == reflect.TypeOf(record).String()) &&
 			(mm.argRecordTable == "" || mm.argRecordTable == rel.NewDocument(record, true).Table()) &&
 			(mm.argRecordContains == nil || matchContains(mm.argRecordContains, record)) &&
-			matchMutators(mm.argMutators, mutators) &&
+			(mm.argMutators == nil || matchMutators(mm.argMutators, mutators)) &&
 			mm.assert.call(ctx) {
 			return mm.retError
 		}

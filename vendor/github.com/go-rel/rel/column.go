@@ -24,6 +24,8 @@ const (
 	String ColumnType = "STRING"
 	// Text ColumnType.
 	Text ColumnType = "TEXT"
+	// JSON ColumnType that will fallback to Text ColumnType if adapter does not support it.
+	JSON ColumnType = "JSON"
 	// Date ColumnType.
 	Date ColumnType = "DATE"
 	// DateTime ColumnType.
@@ -38,6 +40,7 @@ type Column struct {
 	Name      string
 	Type      ColumnType
 	Rename    string
+	Primary   bool
 	Unique    bool
 	Required  bool
 	Unsigned  bool
