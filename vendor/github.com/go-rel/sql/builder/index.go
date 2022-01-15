@@ -1,13 +1,18 @@
 package builder
 
 import (
+	"log"
+
 	"github.com/go-rel/rel"
 )
 
 // Index builder.
 type Index struct {
 	BufferFactory    BufferFactory
+	Query            QueryWriter
+	Filter           Filter
 	DropIndexOnTable bool
+	SupportFilter    bool
 }
 
 // Build sql query for index.
@@ -51,6 +56,14 @@ func (i Index) WriteCreateIndex(buffer *Buffer, index rel.Index) {
 		buffer.WriteEscape(col)
 	}
 	buffer.WriteString(")")
+	if !index.Filter.None() {
+		if !i.SupportFilter {
+			log.Print("[WARN] Adapter does not support filtered/partial indexes")
+			return
+		}
+		buffer.WriteString(" WHERE ")
+		i.Filter.Write(buffer, "", index.Filter, i.Query)
+	}
 }
 
 // WriteDropIndex to buffer

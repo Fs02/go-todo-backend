@@ -13,7 +13,7 @@ type preload []*MockPreload
 
 func (p *preload) register(ctxData ctxData, field string, queriers ...rel.Querier) *MockPreload {
 	mp := &MockPreload{
-		assert:   &Assert{ctxData: ctxData},
+		assert:   &Assert{ctxData: ctxData, repeatability: 1},
 		argField: field,
 		argQuery: rel.Build("", queriers...),
 	}

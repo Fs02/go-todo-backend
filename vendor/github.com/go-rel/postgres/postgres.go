@@ -30,15 +30,17 @@ type Postgres struct {
 // New postgres adapter using existing connection.
 func New(database *db.DB) rel.Adapter {
 	var (
-		bufferFactory    = builder.BufferFactory{ArgumentPlaceholder: "$", ArgumentOrdinal: true, EscapePrefix: "\"", EscapeSuffix: "\""}
+		bufferFactory    = builder.BufferFactory{ArgumentPlaceholder: "$", ArgumentOrdinal: true, BoolTrueValue: "true", BoolFalseValue: "false", Quoter: Quote{}, ValueConverter: ValueConvert{}}
 		filterBuilder    = builder.Filter{}
 		queryBuilder     = builder.Query{BufferFactory: bufferFactory, Filter: filterBuilder}
 		InsertBuilder    = builder.Insert{BufferFactory: bufferFactory, ReturningPrimaryValue: true, InsertDefaultValues: true}
 		insertAllBuilder = builder.InsertAll{BufferFactory: bufferFactory, ReturningPrimaryValue: true}
 		updateBuilder    = builder.Update{BufferFactory: bufferFactory, Query: queryBuilder, Filter: filterBuilder}
 		deleteBuilder    = builder.Delete{BufferFactory: bufferFactory, Query: queryBuilder, Filter: filterBuilder}
-		tableBuilder     = builder.Table{BufferFactory: bufferFactory, ColumnMapper: columnMapper}
-		indexBuilder     = builder.Index{BufferFactory: bufferFactory}
+		ddlBufferFactory = builder.BufferFactory{InlineValues: true, BoolTrueValue: "true", BoolFalseValue: "false", Quoter: Quote{}, ValueConverter: ValueConvert{}}
+		ddlQueryBuilder  = builder.Query{BufferFactory: ddlBufferFactory, Filter: filterBuilder}
+		tableBuilder     = builder.Table{BufferFactory: ddlBufferFactory, ColumnMapper: columnMapper}
+		indexBuilder     = builder.Index{BufferFactory: ddlBufferFactory, Query: ddlQueryBuilder, Filter: filterBuilder, SupportFilter: true}
 	)
 
 	return &Postgres{
@@ -60,6 +62,13 @@ func New(database *db.DB) rel.Adapter {
 func Open(dsn string) (rel.Adapter, error) {
 	var database, err = db.Open("postgres", dsn)
 	return New(database), err
+}
+
+// MustOpen postgres connection using dsn.
+func MustOpen(dsn string) rel.Adapter {
+	var database, err = db.Open("postgres", dsn)
+	check(err)
+	return New(database)
 }
 
 // Insert inserts a record to database and returns its id.
@@ -155,20 +164,28 @@ func columnMapper(column *rel.Column) (string, int, int) {
 
 	switch column.Type {
 	case rel.ID:
-		typ = "SERIAL NOT NULL PRIMARY KEY"
+		typ = "SERIAL NOT NULL"
 	case rel.BigID:
-		typ = "BIGSERIAL NOT NULL PRIMARY KEY"
+		typ = "BIGSERIAL NOT NULL"
 	case rel.DateTime:
 		typ = "TIMESTAMPTZ"
 		if t, ok := column.Default.(time.Time); ok {
-			column.Default = t.Format("2006-01-02 15:04:05")
+			column.Default = FormatTime(t)
 		}
 	case rel.Int, rel.BigInt, rel.Text:
 		column.Limit = 0
 		typ, m, n = sql.ColumnMapper(column)
+	case rel.JSON:
+		typ = "JSONB"
 	default:
 		typ, m, n = sql.ColumnMapper(column)
 	}
 
 	return typ, m, n
+}
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

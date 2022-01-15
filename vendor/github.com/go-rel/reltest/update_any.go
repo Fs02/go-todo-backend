@@ -11,7 +11,7 @@ type updateAny []*MockUpdateAny
 
 func (ua *updateAny) register(ctxData ctxData, query rel.Query, mutates ...rel.Mutate) *MockUpdateAny {
 	mua := &MockUpdateAny{
-		assert:     &Assert{ctxData: ctxData},
+		assert:     &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery:   query,
 		argMutates: mutates,
 	}

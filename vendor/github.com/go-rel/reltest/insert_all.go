@@ -13,7 +13,7 @@ type insertAll []*MockInsertAll
 
 func (ia *insertAll) register(ctxData ctxData) *MockInsertAll {
 	mia := &MockInsertAll{
-		assert: &Assert{ctxData: ctxData},
+		assert: &Assert{ctxData: ctxData, repeatability: 1},
 	}
 	*ia = append(*ia, mia)
 	return mia

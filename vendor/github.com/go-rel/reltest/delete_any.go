@@ -10,7 +10,7 @@ type deleteAny []*MockDeleteAny
 
 func (da *deleteAny) register(ctxData ctxData, query rel.Query) *MockDeleteAny {
 	mda := &MockDeleteAny{
-		assert:   &Assert{ctxData: ctxData},
+		assert:   &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery: query,
 	}
 	*da = append(*da, mda)

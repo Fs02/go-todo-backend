@@ -11,7 +11,7 @@ type findAndCountAll []*MockFindAndCountAll
 
 func (fca *findAndCountAll) register(ctxData ctxData, queriers ...rel.Querier) *MockFindAndCountAll {
 	mfca := &MockFindAndCountAll{
-		assert:   &Assert{ctxData: ctxData},
+		assert:   &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery: rel.Build("", queriers...),
 	}
 	*fca = append(*fca, mfca)

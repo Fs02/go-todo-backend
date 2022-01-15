@@ -10,7 +10,7 @@ type count []*MockCount
 
 func (c *count) register(ctxData ctxData, collection string, queriers ...rel.Querier) *MockCount {
 	mc := &MockCount{
-		assert:        &Assert{ctxData: ctxData},
+		assert:        &Assert{ctxData: ctxData, repeatability: 1},
 		argCollection: collection,
 		argQuery:      rel.Build(collection, queriers...),
 	}

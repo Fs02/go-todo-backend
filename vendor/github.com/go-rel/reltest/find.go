@@ -11,7 +11,7 @@ type find []*MockFind
 
 func (f *find) register(ctxData ctxData, queriers ...rel.Querier) *MockFind {
 	mf := &MockFind{
-		assert:   &Assert{ctxData: ctxData},
+		assert:   &Assert{ctxData: ctxData, repeatability: 1},
 		argQuery: rel.Build("", queriers...),
 	}
 	*f = append(*f, mf)

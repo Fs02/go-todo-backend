@@ -22,7 +22,7 @@ func (ds Delete) Build(table string, filter rel.FilterQuery) (string, []interfac
 
 	if !filter.None() {
 		buffer.WriteString(" WHERE ")
-		ds.Filter.Write(&buffer, filter, ds.Query)
+		ds.Filter.Write(&buffer, table, filter, ds.Query)
 	}
 
 	buffer.WriteString(";")

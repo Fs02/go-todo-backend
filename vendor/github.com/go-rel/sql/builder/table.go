@@ -1,7 +1,6 @@
 package builder
 
 import (
-	"encoding/json"
 	"strconv"
 
 	"github.com/go-rel/rel"
@@ -44,23 +43,25 @@ func (t Table) WriteCreateTable(buffer *Buffer, table rel.Table) {
 	}
 
 	buffer.WriteEscape(table.Name)
-	buffer.WriteString(" (")
+	if len(table.Definitions) > 0 {
+		buffer.WriteString(" (")
 
-	for i, def := range table.Definitions {
-		if i > 0 {
-			buffer.WriteString(", ")
+		for i, def := range table.Definitions {
+			if i > 0 {
+				buffer.WriteString(", ")
+			}
+			switch v := def.(type) {
+			case rel.Column:
+				t.WriteColumn(buffer, v)
+			case rel.Key:
+				t.WriteKey(buffer, v)
+			case rel.Raw:
+				buffer.WriteString(string(v))
+			}
 		}
-		switch v := def.(type) {
-		case rel.Column:
-			t.WriteColumn(buffer, v)
-		case rel.Key:
-			t.WriteKey(buffer, v)
-		case rel.Raw:
-			buffer.WriteString(string(v))
-		}
+
+		buffer.WriteByte(')')
 	}
-
-	buffer.WriteByte(')')
 	t.WriteOptions(buffer, table.Options)
 	buffer.WriteByte(';')
 }
@@ -157,19 +158,13 @@ func (t Table) WriteColumn(buffer *Buffer, column rel.Column) {
 		buffer.WriteString(" NOT NULL")
 	}
 
+	if column.Primary {
+		buffer.WriteString(" PRIMARY KEY")
+	}
+
 	if column.Default != nil {
 		buffer.WriteString(" DEFAULT ")
-		switch v := column.Default.(type) {
-		case string:
-			// TODO: single quote only required by postgres.
-			buffer.WriteByte('\'')
-			buffer.WriteString(v)
-			buffer.WriteByte('\'')
-		default:
-			// TODO: improve
-			bytes, _ := json.Marshal(column.Default)
-			buffer.Write(bytes)
-		}
+		buffer.WriteValue(column.Default)
 	}
 
 	t.WriteOptions(buffer, column.Options)
