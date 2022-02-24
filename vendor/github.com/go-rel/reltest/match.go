@@ -14,44 +14,44 @@ func (any) String() string {
 
 var Any interface{} = any{}
 
-func matchQuery(a rel.Query, b rel.Query) bool {
-	return matchTable(a.Table, b.Table) &&
-		matchSelectQuery(a.SelectQuery, b.SelectQuery) &&
-		matchJoinQuery(a.JoinQuery, b.JoinQuery) &&
-		matchFilterQuery(a.WhereQuery, b.WhereQuery) &&
-		matchGroupQuery(a.GroupQuery, b.GroupQuery) &&
-		matchSortQuery(a.SortQuery, b.SortQuery) &&
-		a.OffsetQuery == b.OffsetQuery &&
-		a.LimitQuery == b.LimitQuery &&
-		a.LockQuery == b.LockQuery &&
-		matchSQLQuery(a.SQLQuery, b.SQLQuery) &&
-		a.UnscopedQuery == b.UnscopedQuery &&
-		a.ReloadQuery == b.ReloadQuery &&
-		a.CascadeQuery == b.CascadeQuery &&
-		reflect.DeepEqual(a.PreloadQuery, b.PreloadQuery)
+func matchQuery(mock rel.Query, input rel.Query) bool {
+	return matchTable(mock.Table, input.Table) &&
+		matchSelectQuery(mock.SelectQuery, input.SelectQuery) &&
+		matchJoinQuery(mock.JoinQuery, input.JoinQuery) &&
+		matchFilterQuery(mock.WhereQuery, input.WhereQuery) &&
+		matchGroupQuery(mock.GroupQuery, input.GroupQuery) &&
+		matchSortQuery(mock.SortQuery, input.SortQuery) &&
+		mock.OffsetQuery == input.OffsetQuery &&
+		mock.LimitQuery == input.LimitQuery &&
+		mock.LockQuery == input.LockQuery &&
+		matchSQLQuery(mock.SQLQuery, input.SQLQuery) &&
+		mock.UnscopedQuery == input.UnscopedQuery &&
+		mock.ReloadQuery == input.ReloadQuery &&
+		mock.CascadeQuery == input.CascadeQuery &&
+		reflect.DeepEqual(mock.PreloadQuery, input.PreloadQuery)
 
 }
 
-func matchTable(a string, b string) bool {
-	return a == "" || b == "" || a == b
+func matchTable(mock string, input string) bool {
+	return mock == "" || input == "" || mock == input
 }
 
-func matchSelectQuery(a rel.SelectQuery, b rel.SelectQuery) bool {
-	return a.OnlyDistinct == b.OnlyDistinct && reflect.DeepEqual(a.Fields, b.Fields)
+func matchSelectQuery(mock rel.SelectQuery, input rel.SelectQuery) bool {
+	return mock.OnlyDistinct == input.OnlyDistinct && reflect.DeepEqual(mock.Fields, input.Fields)
 }
 
-func matchJoinQuery(a []rel.JoinQuery, b []rel.JoinQuery) bool {
-	if len(a) != len(b) {
+func matchJoinQuery(mocks []rel.JoinQuery, inputs []rel.JoinQuery) bool {
+	if len(mocks) != len(inputs) {
 		return false
 	}
 
-	for i := range a {
+	for i := range mocks {
 		// TODO: argument support any
-		if a[i].Mode != b[i].Mode ||
-			a[i].Table != b[i].Table ||
-			a[i].From != b[i].From ||
-			a[i].To != b[i].To ||
-			!reflect.DeepEqual(a[i].Arguments, b[i].Arguments) {
+		if mocks[i].Mode != inputs[i].Mode ||
+			mocks[i].Table != inputs[i].Table ||
+			mocks[i].From != inputs[i].From ||
+			mocks[i].To != inputs[i].To ||
+			!reflect.DeepEqual(mocks[i].Arguments, inputs[i].Arguments) {
 			return false
 		}
 	}
@@ -59,49 +59,27 @@ func matchJoinQuery(a []rel.JoinQuery, b []rel.JoinQuery) bool {
 	return true
 }
 
-func matchFilterQuery(a rel.FilterQuery, b rel.FilterQuery) bool {
-	switch v := a.Value.(type) {
+func matchFilterQuery(mock rel.FilterQuery, input rel.FilterQuery) bool {
+	switch v := mock.Value.(type) {
 	case rel.SubQuery:
-		if bSubQuery, _ := b.Value.(rel.SubQuery); v.Prefix != bSubQuery.Prefix || !matchQuery(v.Query, bSubQuery.Query) {
+		if inputSubQuery, _ := input.Value.(rel.SubQuery); v.Prefix != inputSubQuery.Prefix || !matchQuery(v.Query, inputSubQuery.Query) {
 			return false
 		}
 	case rel.Query:
-		if bQuery, ok := b.Value.(rel.Query); !ok || !matchQuery(v, bQuery) {
+		if bQuery, ok := input.Value.(rel.Query); !ok || !matchQuery(v, bQuery) {
 			return false
 		}
 	default:
-		if a.Type != b.Type ||
-			a.Field != b.Field ||
-			(!reflect.DeepEqual(a.Value, b.Value) && a.Value != Any) ||
-			len(a.Inner) != len(b.Inner) {
+		if mock.Type != input.Type ||
+			mock.Field != input.Field ||
+			(!reflect.DeepEqual(mock.Value, input.Value) && mock.Value != Any) ||
+			len(mock.Inner) != len(input.Inner) {
 			return false
 		}
 	}
 
-	for i := range a.Inner {
-		if !matchFilterQuery(a.Inner[i], b.Inner[i]) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func matchGroupQuery(a rel.GroupQuery, b rel.GroupQuery) bool {
-	return reflect.DeepEqual(a.Fields, b.Fields) && matchFilterQuery(a.Filter, b.Filter)
-}
-
-func matchSortQuery(a []rel.SortQuery, b []rel.SortQuery) bool {
-	return reflect.DeepEqual(a, b)
-}
-
-func matchSQLQuery(a rel.SQLQuery, b rel.SQLQuery) bool {
-	if a.Statement != b.Statement || len(a.Values) != len(b.Values) {
-		return false
-	}
-
-	for i := range a.Values {
-		if a.Values[i] != b.Values[i] && a.Values[i] != Any {
+	for i := range mock.Inner {
+		if !matchFilterQuery(mock.Inner[i], input.Inner[i]) {
 			return false
 		}
 	}
@@ -109,23 +87,45 @@ func matchSQLQuery(a rel.SQLQuery, b rel.SQLQuery) bool {
 	return true
 }
 
-func matchMutators(a []rel.Mutator, b []rel.Mutator) bool {
-	if len(a) != len(b) {
+func matchGroupQuery(mock rel.GroupQuery, input rel.GroupQuery) bool {
+	return reflect.DeepEqual(mock.Fields, input.Fields) && matchFilterQuery(mock.Filter, input.Filter)
+}
+
+func matchSortQuery(mocks []rel.SortQuery, inputs []rel.SortQuery) bool {
+	return reflect.DeepEqual(mocks, inputs)
+}
+
+func matchSQLQuery(mock rel.SQLQuery, input rel.SQLQuery) bool {
+	if mock.Statement != input.Statement || len(mock.Values) != len(input.Values) {
 		return false
 	}
 
-	for i := range a {
-		switch va := a[i].(type) {
+	for i := range mock.Values {
+		if mock.Values[i] != input.Values[i] && mock.Values[i] != Any {
+			return false
+		}
+	}
+
+	return true
+}
+
+func matchMutators(mocks []rel.Mutator, inputs []rel.Mutator) bool {
+	if len(mocks) != len(inputs) {
+		return false
+	}
+
+	for i := range mocks {
+		switch mock := mocks[i].(type) {
 		case rel.Mutate:
-			if vb, ok := b[i].(rel.Mutate); !ok || !matchMutate(va, vb) {
+			if input, ok := inputs[i].(rel.Mutate); !ok || !matchMutate(mock, input) {
 				return false
 			}
 		case rel.Changeset:
-			if vb, ok := b[i].(rel.Changeset); !ok || !reflect.DeepEqual(va.Changes(), vb.Changes()) {
+			if input, ok := inputs[i].(rel.Changeset); !ok || !reflect.DeepEqual(mock.Changes(), input.Changes()) {
 				return false
 			}
 		default:
-			if !reflect.DeepEqual(va, b[i]) {
+			if !reflect.DeepEqual(mock, inputs[i]) {
 				return false
 			}
 		}
@@ -134,17 +134,40 @@ func matchMutators(a []rel.Mutator, b []rel.Mutator) bool {
 	return true
 }
 
-func matchMutate(a rel.Mutate, b rel.Mutate) bool {
-	return a.Type == b.Type && a.Field == b.Field && (a.Value == b.Value || a.Value == Any)
-}
-
-func matchMutates(a []rel.Mutate, b []rel.Mutate) bool {
-	if len(a) != len(b) {
+func matchMutate(mock rel.Mutate, input rel.Mutate) bool {
+	if mock.Type != input.Type || mock.Field != input.Field {
 		return false
 	}
 
-	for i := range a {
-		if !matchMutate(a[i], b[i]) {
+	if mock.Type == rel.ChangeFragmentOp {
+		var (
+			mockArgs, _  = mock.Value.([]interface{})
+			inputArgs, _ = input.Value.([]interface{})
+		)
+
+		if len(mockArgs) != len(inputArgs) {
+			return false
+		}
+
+		for i := range mockArgs {
+			if mockArgs[i] != Any && !reflect.DeepEqual(mockArgs[i], inputArgs[i]) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	return mock.Value == Any || reflect.DeepEqual(mock.Value, input.Value)
+}
+
+func matchMutates(mocks []rel.Mutate, inputs []rel.Mutate) bool {
+	if len(mocks) != len(inputs) {
+		return false
+	}
+
+	for i := range mocks {
+		if !matchMutate(mocks[i], inputs[i]) {
 			return false
 		}
 	}
@@ -152,12 +175,11 @@ func matchMutates(a []rel.Mutate, b []rel.Mutate) bool {
 	return true
 }
 
-// match a contained in b
-func matchContains(a interface{}, b interface{}) bool {
+func matchContains(mock interface{}, input interface{}) bool {
 	var (
-		rva = reflect.Indirect(reflect.ValueOf(a))
+		rva = reflect.Indirect(reflect.ValueOf(mock))
 		rta = rva.Type()
-		rvb = reflect.Indirect(reflect.ValueOf(b))
+		rvb = reflect.Indirect(reflect.ValueOf(input))
 	)
 
 	for i := 0; i < rva.NumField(); i++ {

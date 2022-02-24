@@ -61,7 +61,9 @@ type MockFind struct {
 
 // Result sets the result of this query.
 func (mf *MockFind) Result(result interface{}) *Assert {
-	mf.argQuery.Table = rel.NewDocument(result, true).Table()
+	if mf.argQuery.Table == "" {
+		mf.argQuery.Table = rel.NewDocument(result, true).Table()
+	}
 	mf.argRecord = result
 	return mf.assert
 }
