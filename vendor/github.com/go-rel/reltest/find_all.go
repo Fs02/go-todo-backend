@@ -61,7 +61,9 @@ type MockFindAll struct {
 
 // Result sets the result of this query.
 func (mfa *MockFindAll) Result(result interface{}) *Assert {
-	mfa.argQuery.Table = rel.NewCollection(result, true).Table()
+	if mfa.argQuery.Table == "" {
+		mfa.argQuery.Table = rel.NewCollection(result, true).Table()
+	}
 	mfa.argRecords = result
 	return mfa.assert
 }

@@ -62,7 +62,9 @@ type MockFindAndCountAll struct {
 
 // Result sets the result of this query.
 func (mfca *MockFindAndCountAll) Result(result interface{}, count int) *Assert {
-	mfca.argQuery.Table = rel.NewCollection(result, true).Table()
+	if mfca.argQuery.Table == "" {
+		mfca.argQuery.Table = rel.NewCollection(result, true).Table()
+	}
 	mfca.argRecords = result
 	mfca.retCount = count
 	return mfca.assert
