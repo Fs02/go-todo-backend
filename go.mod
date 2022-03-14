@@ -4,9 +4,9 @@ go 1.14
 
 require (
 	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/go-rel/postgres v0.6.0
-	github.com/go-rel/rel v0.32.0
-	github.com/go-rel/reltest v0.7.0
+	github.com/go-rel/postgres v0.7.0
+	github.com/go-rel/rel v0.33.1
+	github.com/go-rel/reltest v0.8.1
 	github.com/goware/cors v1.1.1
 	github.com/lib/pq v1.10.4
 	github.com/stretchr/testify v1.7.0

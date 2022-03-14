@@ -30,17 +30,18 @@ type Postgres struct {
 // New postgres adapter using existing connection.
 func New(database *db.DB) rel.Adapter {
 	var (
-		bufferFactory    = builder.BufferFactory{ArgumentPlaceholder: "$", ArgumentOrdinal: true, BoolTrueValue: "true", BoolFalseValue: "false", Quoter: Quote{}, ValueConverter: ValueConvert{}}
-		filterBuilder    = builder.Filter{}
-		queryBuilder     = builder.Query{BufferFactory: bufferFactory, Filter: filterBuilder}
-		InsertBuilder    = builder.Insert{BufferFactory: bufferFactory, ReturningPrimaryValue: true, InsertDefaultValues: true}
-		insertAllBuilder = builder.InsertAll{BufferFactory: bufferFactory, ReturningPrimaryValue: true}
-		updateBuilder    = builder.Update{BufferFactory: bufferFactory, Query: queryBuilder, Filter: filterBuilder}
-		deleteBuilder    = builder.Delete{BufferFactory: bufferFactory, Query: queryBuilder, Filter: filterBuilder}
-		ddlBufferFactory = builder.BufferFactory{InlineValues: true, BoolTrueValue: "true", BoolFalseValue: "false", Quoter: Quote{}, ValueConverter: ValueConvert{}}
-		ddlQueryBuilder  = builder.Query{BufferFactory: ddlBufferFactory, Filter: filterBuilder}
-		tableBuilder     = builder.Table{BufferFactory: ddlBufferFactory, ColumnMapper: columnMapper}
-		indexBuilder     = builder.Index{BufferFactory: ddlBufferFactory, Query: ddlQueryBuilder, Filter: filterBuilder, SupportFilter: true}
+		bufferFactory     = builder.BufferFactory{ArgumentPlaceholder: "$", ArgumentOrdinal: true, BoolTrueValue: "true", BoolFalseValue: "false", Quoter: Quote{}, ValueConverter: ValueConvert{}}
+		filterBuilder     = builder.Filter{}
+		queryBuilder      = builder.Query{BufferFactory: bufferFactory, Filter: filterBuilder}
+		OnConflictBuilder = builder.OnConflict{Statement: "ON CONFLICT", IgnoreStatement: "DO NOTHING", UpdateStatement: "DO UPDATE SET", TableQualifier: "excluded", SupportKey: true}
+		InsertBuilder     = builder.Insert{BufferFactory: bufferFactory, ReturningPrimaryValue: true, InsertDefaultValues: true, OnConflict: OnConflictBuilder}
+		insertAllBuilder  = builder.InsertAll{BufferFactory: bufferFactory, ReturningPrimaryValue: true, OnConflict: OnConflictBuilder}
+		updateBuilder     = builder.Update{BufferFactory: bufferFactory, Query: queryBuilder, Filter: filterBuilder}
+		deleteBuilder     = builder.Delete{BufferFactory: bufferFactory, Query: queryBuilder, Filter: filterBuilder}
+		ddlBufferFactory  = builder.BufferFactory{InlineValues: true, BoolTrueValue: "true", BoolFalseValue: "false", Quoter: Quote{}, ValueConverter: ValueConvert{}}
+		ddlQueryBuilder   = builder.Query{BufferFactory: ddlBufferFactory, Filter: filterBuilder}
+		tableBuilder      = builder.Table{BufferFactory: ddlBufferFactory, ColumnMapper: columnMapper}
+		indexBuilder      = builder.Index{BufferFactory: ddlBufferFactory, Query: ddlQueryBuilder, Filter: filterBuilder, SupportFilter: true}
 	)
 
 	return &Postgres{
@@ -72,10 +73,10 @@ func MustOpen(dsn string) rel.Adapter {
 }
 
 // Insert inserts a record to database and returns its id.
-func (p Postgres) Insert(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate) (interface{}, error) {
+func (p Postgres) Insert(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate, onConflict rel.OnConflict) (interface{}, error) {
 	var (
 		id              int64
-		statement, args = p.InsertBuilder.Build(query.Table, primaryField, mutates)
+		statement, args = p.InsertBuilder.Build(query.Table, primaryField, mutates, onConflict)
 		rows, err       = p.DoQuery(ctx, statement, args)
 	)
 
@@ -88,10 +89,10 @@ func (p Postgres) Insert(ctx context.Context, query rel.Query, primaryField stri
 }
 
 // InsertAll inserts multiple records to database and returns its ids.
-func (p Postgres) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate) ([]interface{}, error) {
+func (p Postgres) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate, onConflict rel.OnConflict) ([]interface{}, error) {
 	var (
 		ids             []interface{}
-		statement, args = p.InsertAllBuilder.Build(query.Table, primaryField, fields, bulkMutates)
+		statement, args = p.InsertAllBuilder.Build(query.Table, primaryField, fields, bulkMutates, onConflict)
 		rows, err       = p.DoQuery(ctx, statement, args)
 	)
 

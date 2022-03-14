@@ -58,7 +58,7 @@ func (i Index) WriteCreateIndex(buffer *Buffer, index rel.Index) {
 	buffer.WriteString(")")
 	if !index.Filter.None() {
 		if !i.SupportFilter {
-			log.Print("[WARN] Adapter does not support filtered/partial indexes")
+			log.Print("[REL] Adapter does not support filtered/partial indexes")
 			return
 		}
 		buffer.WriteString(" WHERE ")
