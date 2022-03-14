@@ -8,18 +8,35 @@ import (
 type InsertAll struct {
 	BufferFactory         BufferFactory
 	ReturningPrimaryValue bool
+	OnConflict            OnConflict
 }
 
 // Build SQL string and its arguments.
-func (ia InsertAll) Build(table string, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate) (string, []interface{}) {
+func (ia InsertAll) Build(table string, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate, onConflict rel.OnConflict) (string, []interface{}) {
 	var (
-		buffer       = ia.BufferFactory.Create()
+		buffer = ia.BufferFactory.Create()
+	)
+
+	ia.WriteInsertInto(&buffer, table)
+	ia.WriteValues(&buffer, fields, bulkMutates)
+	ia.OnConflict.Write(&buffer, fields, onConflict)
+	ia.WriteReturning(&buffer, primaryField)
+	buffer.WriteString(";")
+
+	return buffer.String(), buffer.Arguments()
+}
+
+func (ia InsertAll) WriteInsertInto(buffer *Buffer, table string) {
+	buffer.WriteString("INSERT INTO ")
+	buffer.WriteEscape(table)
+}
+
+func (ia InsertAll) WriteValues(buffer *Buffer, fields []string, bulkMutates []map[string]rel.Mutate) {
+	var (
 		fieldsCount  = len(fields)
 		mutatesCount = len(bulkMutates)
 	)
 
-	buffer.WriteString("INSERT INTO ")
-	buffer.WriteEscape(table)
 	buffer.WriteString(" (")
 
 	for i := range fields {
@@ -53,14 +70,11 @@ func (ia InsertAll) Build(table string, primaryField string, fields []string, bu
 			buffer.WriteByte(')')
 		}
 	}
+}
 
+func (ia InsertAll) WriteReturning(buffer *Buffer, primaryField string) {
 	if ia.ReturningPrimaryValue && primaryField != "" {
 		buffer.WriteString(" RETURNING ")
 		buffer.WriteEscape(primaryField)
 	}
-
-	buffer.WriteString(";")
-
-	return buffer.String(), buffer.Arguments()
-
 }

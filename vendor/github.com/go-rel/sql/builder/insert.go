@@ -9,17 +9,34 @@ type Insert struct {
 	BufferFactory         BufferFactory
 	ReturningPrimaryValue bool
 	InsertDefaultValues   bool
+	OnConflict            OnConflict
 }
 
 // Build sql query and its arguments.
-func (i Insert) Build(table string, primaryField string, mutates map[string]rel.Mutate) (string, []interface{}) {
+func (i Insert) Build(table string, primaryField string, mutates map[string]rel.Mutate, onConflict rel.OnConflict) (string, []interface{}) {
 	var (
 		buffer = i.BufferFactory.Create()
-		count  = len(mutates)
 	)
 
+	i.WriteInsertInto(&buffer, table)
+	i.WriteValues(&buffer, mutates)
+	i.OnConflict.WriteMutates(&buffer, mutates, onConflict)
+	i.WriteReturning(&buffer, primaryField)
+
+	buffer.WriteString(";")
+
+	return buffer.String(), buffer.Arguments()
+}
+
+func (i Insert) WriteInsertInto(buffer *Buffer, table string) {
 	buffer.WriteString("INSERT INTO ")
 	buffer.WriteEscape(table)
+}
+
+func (i Insert) WriteValues(buffer *Buffer, mutates map[string]rel.Mutate) {
+	var (
+		count = len(mutates)
+	)
 
 	if count == 0 && i.InsertDefaultValues {
 		buffer.WriteString(" DEFAULT VALUES")
@@ -55,13 +72,11 @@ func (i Insert) Build(table string, primaryField string, mutates map[string]rel.
 		buffer.AddArguments(arguments...)
 		buffer.WriteByte(')')
 	}
+}
 
+func (i Insert) WriteReturning(buffer *Buffer, primaryField string) {
 	if i.ReturningPrimaryValue && primaryField != "" {
 		buffer.WriteString(" RETURNING ")
 		buffer.WriteEscape(primaryField)
 	}
-
-	buffer.WriteString(";")
-
-	return buffer.String(), buffer.Arguments()
 }
