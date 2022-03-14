@@ -11,19 +11,19 @@ type Filter struct{}
 func (f Filter) Write(buffer *Buffer, table string, filter rel.FilterQuery, queryWriter QueryWriter) {
 	switch filter.Type {
 	case rel.FilterAndOp:
-		f.BuildLogical(buffer, table, "AND", filter.Inner, queryWriter)
+		f.WriteLogical(buffer, table, "AND", filter.Inner, queryWriter)
 	case rel.FilterOrOp:
-		f.BuildLogical(buffer, table, "OR", filter.Inner, queryWriter)
+		f.WriteLogical(buffer, table, "OR", filter.Inner, queryWriter)
 	case rel.FilterNotOp:
 		buffer.WriteString("NOT ")
-		f.BuildLogical(buffer, table, "AND", filter.Inner, queryWriter)
+		f.WriteLogical(buffer, table, "AND", filter.Inner, queryWriter)
 	case rel.FilterEqOp,
 		rel.FilterNeOp,
 		rel.FilterLtOp,
 		rel.FilterLteOp,
 		rel.FilterGtOp,
 		rel.FilterGteOp:
-		f.BuildComparison(buffer, table, filter, queryWriter)
+		f.WriteComparison(buffer, table, filter, queryWriter)
 	case rel.FilterNilOp:
 		buffer.WriteField(table, filter.Field)
 		buffer.WriteString(" IS NULL")
@@ -32,7 +32,7 @@ func (f Filter) Write(buffer *Buffer, table string, filter rel.FilterQuery, quer
 		buffer.WriteString(" IS NOT NULL")
 	case rel.FilterInOp,
 		rel.FilterNinOp:
-		f.BuildInclusion(buffer, table, filter, queryWriter)
+		f.WriteInclusion(buffer, table, filter, queryWriter)
 	case rel.FilterLikeOp:
 		buffer.WriteField(table, filter.Field)
 		buffer.WriteString(" LIKE ")
@@ -49,8 +49,8 @@ func (f Filter) Write(buffer *Buffer, table string, filter rel.FilterQuery, quer
 	}
 }
 
-// BuildLogical SQL to buffer.
-func (f Filter) BuildLogical(buffer *Buffer, table, op string, inner []rel.FilterQuery, queryWriter QueryWriter) {
+// WriteLogical SQL to buffer.
+func (f Filter) WriteLogical(buffer *Buffer, table, op string, inner []rel.FilterQuery, queryWriter QueryWriter) {
 	var (
 		length = len(inner)
 	)
@@ -74,8 +74,8 @@ func (f Filter) BuildLogical(buffer *Buffer, table, op string, inner []rel.Filte
 	}
 }
 
-// BuildComparison SQL to buffer.
-func (f Filter) BuildComparison(buffer *Buffer, table string, filter rel.FilterQuery, queryWriter QueryWriter) {
+// WriteComparison SQL to buffer.
+func (f Filter) WriteComparison(buffer *Buffer, table string, filter rel.FilterQuery, queryWriter QueryWriter) {
 	buffer.WriteField(table, filter.Field)
 
 	switch filter.Type {
@@ -96,18 +96,18 @@ func (f Filter) BuildComparison(buffer *Buffer, table string, filter rel.FilterQ
 	switch v := filter.Value.(type) {
 	case rel.SubQuery:
 		// For warped sub-queries
-		f.buildSubQuery(buffer, v, queryWriter)
+		f.WriteSubQuery(buffer, v, queryWriter)
 	case rel.Query:
 		// For sub-queries without warp
-		f.buildSubQuery(buffer, rel.SubQuery{Query: v}, queryWriter)
+		f.WriteSubQuery(buffer, rel.SubQuery{Query: v}, queryWriter)
 	default:
 		// For simple values
 		buffer.WriteValue(filter.Value)
 	}
 }
 
-// BuildInclusion SQL to buffer.
-func (f Filter) BuildInclusion(buffer *Buffer, table string, filter rel.FilterQuery, queryWriter QueryWriter) {
+// WriteInclusion SQL to buffer.
+func (f Filter) WriteInclusion(buffer *Buffer, table string, filter rel.FilterQuery, queryWriter QueryWriter) {
 	var (
 		values = filter.Value.([]interface{})
 	)
@@ -127,14 +127,14 @@ func (f Filter) BuildInclusion(buffer *Buffer, table string, filter rel.FilterQu
 			buffer.WriteString(" NOT IN ")
 		}
 
-		f.buildInclusionValues(buffer, values, queryWriter)
+		f.WriteInclusionValues(buffer, values, queryWriter)
 	}
 }
 
-func (f Filter) buildInclusionValues(buffer *Buffer, values []interface{}, queryWriter QueryWriter) {
+func (f Filter) WriteInclusionValues(buffer *Buffer, values []interface{}, queryWriter QueryWriter) {
 	if len(values) == 1 {
 		if value, ok := values[0].(rel.Query); ok {
-			f.buildSubQuery(buffer, rel.SubQuery{Query: value}, queryWriter)
+			f.WriteSubQuery(buffer, rel.SubQuery{Query: value}, queryWriter)
 			return
 		}
 	}
@@ -149,7 +149,7 @@ func (f Filter) buildInclusionValues(buffer *Buffer, values []interface{}, query
 	buffer.WriteByte(')')
 }
 
-func (f Filter) buildSubQuery(buffer *Buffer, sub rel.SubQuery, queryWriter QueryWriter) {
+func (f Filter) WriteSubQuery(buffer *Buffer, sub rel.SubQuery, queryWriter QueryWriter) {
 	buffer.WriteString(sub.Prefix)
 	buffer.WriteByte('(')
 	queryWriter.Write(buffer, sub.Query)

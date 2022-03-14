@@ -9,11 +9,11 @@ type QueryBuilder interface {
 }
 
 type InsertBuilder interface {
-	Build(table string, primaryField string, mutates map[string]rel.Mutate) (string, []interface{})
+	Build(table string, primaryField string, mutates map[string]rel.Mutate, onConflict rel.OnConflict) (string, []interface{})
 }
 
 type InsertAllBuilder interface {
-	Build(table string, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate) (string, []interface{})
+	Build(table string, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate, onConflict rel.OnConflict) (string, []interface{})
 }
 
 type UpdateBuilder interface {
