@@ -11,31 +11,31 @@ import (
 
 type delete []*MockDelete
 
-func (d *delete) register(ctxData ctxData, options ...rel.Cascade) *MockDelete {
+func (d *delete) register(ctxData ctxData, mutators ...rel.Mutator) *MockDelete {
 	md := &MockDelete{
-		assert:     &Assert{ctxData: ctxData, repeatability: 1},
-		argOptions: options,
+		assert:      &Assert{ctxData: ctxData, repeatability: 1},
+		argMutators: mutators,
 	}
 	*d = append(*d, md)
 	return md
 }
 
-func (d delete) execute(ctx context.Context, record interface{}, options ...rel.Cascade) error {
+func (d delete) execute(ctx context.Context, record interface{}, mutators ...rel.Mutator) error {
 	for _, md := range d {
 		if (md.argRecord == nil || reflect.DeepEqual(md.argRecord, record)) &&
 			(md.argRecordType == "" || md.argRecordType == reflect.TypeOf(record).String()) &&
 			(md.argRecordTable == "" || md.argRecordTable == rel.NewDocument(record, true).Table()) &&
 			(md.argRecordContains == nil || matchContains(md.argRecordContains, record)) &&
-			reflect.DeepEqual(md.argOptions, options) &&
+			matchMutators(md.argMutators, mutators) &&
 			md.assert.call(ctx) {
 			return md.retError
 		}
 	}
 
 	md := &MockDelete{
-		assert:     &Assert{ctxData: fetchContext(ctx)},
-		argRecord:  record,
-		argOptions: options,
+		assert:      &Assert{ctxData: fetchContext(ctx)},
+		argRecord:   record,
+		argMutators: mutators,
 	}
 
 	panic(failExecuteMessage(md, d))
@@ -60,7 +60,7 @@ type MockDelete struct {
 	argRecordType     string
 	argRecordTable    string
 	argRecordContains interface{}
-	argOptions        []rel.Cascade
+	argMutators       []rel.Mutator
 	retError          error
 }
 
@@ -118,20 +118,20 @@ func (md MockDelete) String() string {
 		argRecord = fmt.Sprintf("<Table: %s>", md.argRecordTable)
 	}
 
-	argCascade := ""
-	for i := range md.argOptions {
-		argCascade += fmt.Sprintf(", %v", md.argOptions[i])
+	argMutators := ""
+	for i := range md.argMutators {
+		argMutators += fmt.Sprintf(", %v", md.argMutators[i])
 	}
 
-	return md.assert.sprintf("Delete(ctx, %s%s)", argRecord, argCascade)
+	return md.assert.sprintf("Delete(ctx, %s%s)", argRecord, argMutators)
 }
 
 // ExpectString representation of mocked call.
 func (md MockDelete) ExpectString() string {
-	argOptions := ""
-	for i := range md.argOptions {
-		argOptions += fmt.Sprintf("%v", md.argOptions[i])
+	argMutators := ""
+	for i := range md.argMutators {
+		argMutators += fmt.Sprintf("%v", md.argMutators[i])
 	}
 
-	return md.assert.sprintf("ExpectDelete(%s).ForType(\"%T\")", argOptions, md.argRecord)
+	return md.assert.sprintf("ExpectDelete(%s).ForType(\"%T\")", argMutators, md.argRecord)
 }

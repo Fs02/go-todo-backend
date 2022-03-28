@@ -22,10 +22,11 @@ github.com/go-rel/postgres v0.7.0 h1:F/1oQAVJkD/YUOi8+4HDzf2I4uUMmeorujJRn0ee/S0
 github.com/go-rel/postgres v0.7.0/go.mod h1:dsGQLtrOL6YdJP/BKL7vqTVQQiCCXT4fZP0NTCsy2JE=
 github.com/go-rel/primaryreplica v0.4.0 h1:lhU+4dh0/sDQEs602Chiz0SJDXewPU06baWQlx7oB3c=
 github.com/go-rel/primaryreplica v0.4.0/go.mod h1:HUBz+BUvUcg9JpRRk9PstV9J/qlEOqaHIIllGncbUs8=
-github.com/go-rel/rel v0.33.1 h1:yi3u6FDsQnOKZjo/DxEAC1WOLEjoas3fE1+Vyh6m6uY=
 github.com/go-rel/rel v0.33.1/go.mod h1:DhB9Xmt/ymaumJAB6Z3Kq+IybLwQhhrzr6ZLeXMygPo=
-github.com/go-rel/reltest v0.8.1 h1:L44lbtsvg6aic5m/a2GVEhauNTapF1YR7Li3XYindWk=
-github.com/go-rel/reltest v0.8.1/go.mod h1:ZGM+yKATZ1y46l3alApuUz9wu5o3twAmPfCVvJBjpF8=
+github.com/go-rel/rel v0.34.0 h1:dynBkxkVOHxFMHtu3p8vdvAMjjCm+Yi2J0tJsjeoVjQ=
+github.com/go-rel/rel v0.34.0/go.mod h1:YDHtnJhlaiSjANLGiZXvI57jg1amfpJSJlOimq6WJTE=
+github.com/go-rel/reltest v0.9.0 h1:OTBY2dD/hNXaH5r1XXIHRdni6QGCmFaQm1pFAFkg1ok=
+github.com/go-rel/reltest v0.9.0/go.mod h1:Eu1JNASF6TfiktPlmvWEYHp+UejmGl9MmKRWieHxkXo=
 github.com/go-rel/sql v0.9.1 h1:2tHu4U4Bk1DWKvzsitwcvv1sk6aGcxPh3LYJXspgk8w=
 github.com/go-rel/sql v0.9.1/go.mod h1:4Ghpv6kjZG+EwHXRApJfo/Tg5K3rAYmxJq8wVcblU8g=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
