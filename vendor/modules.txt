@@ -31,9 +31,9 @@ github.com/lib/pq/scram
 github.com/pmezard/go-difflib/difflib
 # github.com/serenize/snaker v0.0.0-20201027110005-a7ad2135616e
 github.com/serenize/snaker
-# github.com/stretchr/objx v0.3.0
+# github.com/stretchr/objx v0.4.0
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.7.2
+# github.com/stretchr/testify v1.7.4
 ## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
