@@ -33,7 +33,7 @@ github.com/pmezard/go-difflib/difflib
 github.com/serenize/snaker
 # github.com/stretchr/objx v0.4.0
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.7.4
+# github.com/stretchr/testify v1.7.5
 ## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
