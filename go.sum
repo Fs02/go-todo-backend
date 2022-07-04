@@ -23,11 +23,10 @@ github.com/go-rel/postgres v0.7.0/go.mod h1:dsGQLtrOL6YdJP/BKL7vqTVQQiCCXT4fZP0N
 github.com/go-rel/primaryreplica v0.4.0 h1:lhU+4dh0/sDQEs602Chiz0SJDXewPU06baWQlx7oB3c=
 github.com/go-rel/primaryreplica v0.4.0/go.mod h1:HUBz+BUvUcg9JpRRk9PstV9J/qlEOqaHIIllGncbUs8=
 github.com/go-rel/rel v0.33.1/go.mod h1:DhB9Xmt/ymaumJAB6Z3Kq+IybLwQhhrzr6ZLeXMygPo=
-github.com/go-rel/rel v0.34.0/go.mod h1:YDHtnJhlaiSjANLGiZXvI57jg1amfpJSJlOimq6WJTE=
-github.com/go-rel/rel v0.36.0 h1:GgKB+0btoZVQ+6YBboPJvRksNtbMJOTv+iMO79t+QMo=
-github.com/go-rel/rel v0.36.0/go.mod h1:SHjO9VOInj8GD2cTVWmTnOS+rj5IJZoDy8LEyd5oDUQ=
-github.com/go-rel/reltest v0.9.0 h1:OTBY2dD/hNXaH5r1XXIHRdni6QGCmFaQm1pFAFkg1ok=
-github.com/go-rel/reltest v0.9.0/go.mod h1:Eu1JNASF6TfiktPlmvWEYHp+UejmGl9MmKRWieHxkXo=
+github.com/go-rel/rel v0.37.0 h1:9Ca1u0E6tu3hZGbzgpk6VxQI8b50JV7AeTi+v5Q/1jU=
+github.com/go-rel/rel v0.37.0/go.mod h1:Zq18pQqXZbDh2JBCo29jgt+y90nZWkUvI+W9Ls29ans=
+github.com/go-rel/reltest v0.10.0 h1:qBSx/rfFom9A/O1TORqKCPUE9TJGeihiCfef8AALJdU=
+github.com/go-rel/reltest v0.10.0/go.mod h1:7JyHqSO3LP7bGgVeu2c+98XfT/BLBCAKh+qWlD+M0Vk=
 github.com/go-rel/sql v0.9.1 h1:2tHu4U4Bk1DWKvzsitwcvv1sk6aGcxPh3LYJXspgk8w=
 github.com/go-rel/sql v0.9.1/go.mod h1:4Ghpv6kjZG+EwHXRApJfo/Tg5K3rAYmxJq8wVcblU8g=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
@@ -159,9 +158,8 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/stretchr/testify v1.7.4/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/stretchr/testify v1.7.5 h1:s5PTfem8p8EbKQOctVV53k6jCJt3UX4IEJzwh+C324Q=
-github.com/stretchr/testify v1.7.5/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
+github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
+github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/subosito/gotenv v1.4.0/go.mod h1:mZd6rFysKEcUhUHXJk0C/08wAgyDBFuwEYL7vWWGaGo=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
