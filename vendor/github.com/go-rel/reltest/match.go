@@ -46,6 +46,10 @@ func matchJoinQuery(mocks []rel.JoinQuery, inputs []rel.JoinQuery) bool {
 	}
 
 	for i := range mocks {
+		if mocks[i].Assoc != "" && mocks[i].Assoc == inputs[i].Assoc {
+			continue
+		}
+
 		// TODO: argument support any
 		if mocks[i].Mode != inputs[i].Mode ||
 			mocks[i].Table != inputs[i].Table ||
