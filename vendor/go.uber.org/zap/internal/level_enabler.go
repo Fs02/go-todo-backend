@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Uber Technologies, Inc.
+// Copyright (c) 2022 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,10 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package atomic
+package internal
 
-//go:generate bin/gen-atomicint -name=Int32 -wrapped=int32 -file=int32.go
-//go:generate bin/gen-atomicint -name=Int64 -wrapped=int64 -file=int64.go
-//go:generate bin/gen-atomicint -name=Uint32 -wrapped=uint32 -unsigned -file=uint32.go
-//go:generate bin/gen-atomicint -name=Uint64 -wrapped=uint64 -unsigned -file=uint64.go
-//go:generate bin/gen-atomicint -name=Uintptr -wrapped=uintptr -unsigned -file=uintptr.go
+import "go.uber.org/zap/zapcore"
+
+// LeveledEnabler is an interface satisfied by LevelEnablers that are able to
+// report their own level.
+//
+// This interface is defined to use more conveniently in tests and non-zapcore
+// packages.
+// This cannot be imported from zapcore because of the cyclic dependency.
+type LeveledEnabler interface {
+	zapcore.LevelEnabler
+
+	Level() zapcore.Level
+}

@@ -1,6 +1,6 @@
 module github.com/Fs02/go-todo-backend
 
-go 1.14
+go 1.19
 
 require (
 	github.com/go-chi/chi v4.1.2+incompatible
@@ -10,6 +10,17 @@ require (
 	github.com/goware/cors v1.1.1
 	github.com/lib/pq v1.10.7
 	github.com/stretchr/testify v1.8.0
-	go.uber.org/zap v1.21.0
-	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
+	go.uber.org/zap v1.23.0
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/go-rel/sql v0.12.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/serenize/snaker v0.0.0-20201027110005-a7ad2135616e // indirect
+	github.com/stretchr/objx v0.4.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
