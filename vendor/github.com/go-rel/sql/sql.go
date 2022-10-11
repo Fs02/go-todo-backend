@@ -24,6 +24,7 @@ type SQL struct {
 	DeleteBuilder    DeleteBuilder
 	TableBuilder     TableBuilder
 	IndexBuilder     IndexBuilder
+	Increment        int
 	IncrementFunc    IncrementFunc
 	ErrorMapper      ErrorMapper
 	DB               *sql.DB
@@ -101,6 +102,7 @@ func (s SQL) Begin(ctx context.Context) (rel.Adapter, error) {
 		DeleteBuilder:    s.DeleteBuilder,
 		TableBuilder:     s.TableBuilder,
 		IndexBuilder:     s.IndexBuilder,
+		Increment:        s.Increment,
 		IncrementFunc:    s.IncrementFunc,
 		ErrorMapper:      s.ErrorMapper,
 		Tx:               tx,
@@ -226,7 +228,7 @@ func (s SQL) InsertAll(ctx context.Context, query rel.Query, primaryField string
 
 	var (
 		ids = make([]interface{}, len(bulkMutates))
-		inc = 1
+		inc = s.Increment
 	)
 
 	if s.IncrementFunc != nil {
