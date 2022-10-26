@@ -8,8 +8,8 @@ github.com/go-chi/chi/middleware
 # github.com/go-rel/postgres v0.8.0
 ## explicit; go 1.17
 github.com/go-rel/postgres
-# github.com/go-rel/rel v0.38.0
-## explicit; go 1.15
+# github.com/go-rel/rel v0.39.0
+## explicit; go 1.19
 github.com/go-rel/rel
 github.com/go-rel/rel/where
 # github.com/go-rel/reltest v0.10.0
