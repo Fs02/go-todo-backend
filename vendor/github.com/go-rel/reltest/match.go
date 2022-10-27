@@ -6,13 +6,13 @@ import (
 	"github.com/go-rel/rel"
 )
 
-type any struct{}
+type anyValue struct{}
 
-func (any) String() string {
+func (anyValue) String() string {
 	return "<Any>"
 }
 
-var Any interface{} = any{}
+var Any any = anyValue{}
 
 func matchQuery(mock rel.Query, input rel.Query) bool {
 	return matchTable(mock.Table, input.Table) &&
@@ -145,8 +145,8 @@ func matchMutate(mock rel.Mutate, input rel.Mutate) bool {
 
 	if mock.Type == rel.ChangeFragmentOp {
 		var (
-			mockArgs, _  = mock.Value.([]interface{})
-			inputArgs, _ = input.Value.([]interface{})
+			mockArgs, _  = mock.Value.([]any)
+			inputArgs, _ = input.Value.([]any)
 		)
 
 		if len(mockArgs) != len(inputArgs) {
@@ -179,7 +179,7 @@ func matchMutates(mocks []rel.Mutate, inputs []rel.Mutate) bool {
 	return true
 }
 
-func matchContains(mock interface{}, input interface{}) bool {
+func matchContains(mock any, input any) bool {
 	var (
 		rva = reflect.Indirect(reflect.ValueOf(mock))
 		rta = rva.Type()

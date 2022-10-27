@@ -8,7 +8,7 @@ import (
 
 type exec []*MockExec
 
-func (e *exec) register(ctxData ctxData, statement string, args ...interface{}) *MockExec {
+func (e *exec) register(ctxData ctxData, statement string, args ...any) *MockExec {
 	me := &MockExec{
 		assert:       &Assert{ctxData: ctxData, repeatability: 1},
 		argStatement: statement,
@@ -18,7 +18,7 @@ func (e *exec) register(ctxData ctxData, statement string, args ...interface{}) 
 	return me
 }
 
-func (e exec) execute(ctx context.Context, statement string, args ...interface{}) (int, int, error) {
+func (e exec) execute(ctx context.Context, statement string, args ...any) (int, int, error) {
 	for _, me := range e {
 		if me.argStatement == statement &&
 			reflect.DeepEqual(me.argArgs, args) &&
@@ -35,7 +35,7 @@ func (e exec) execute(ctx context.Context, statement string, args ...interface{}
 	panic(failExecuteMessage(me, e))
 }
 
-func (e *exec) assert(t T) bool {
+func (e *exec) assert(t TestingT) bool {
 	t.Helper()
 	for _, me := range *e {
 		if !me.assert.assert(t, me) {
@@ -51,7 +51,7 @@ func (e *exec) assert(t T) bool {
 type MockExec struct {
 	assert            *Assert
 	argStatement      string
-	argArgs           []interface{}
+	argArgs           []any
 	retLastInsertedId int
 	retRowsAffected   int
 	retError          error

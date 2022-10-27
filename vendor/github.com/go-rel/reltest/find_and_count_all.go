@@ -18,13 +18,13 @@ func (fca *findAndCountAll) register(ctxData ctxData, queriers ...rel.Querier) *
 	return mfca
 }
 
-func (fca findAndCountAll) execute(ctx context.Context, records interface{}, queriers ...rel.Querier) (int, error) {
+func (fca findAndCountAll) execute(ctx context.Context, entities any, queriers ...rel.Querier) (int, error) {
 	query := rel.Build("", queriers...)
 	for _, mfca := range fca {
 		if matchQuery(mfca.argQuery, query) &&
 			mfca.assert.call(ctx) {
-			if mfca.argRecords != nil {
-				reflect.ValueOf(records).Elem().Set(reflect.ValueOf(mfca.argRecords))
+			if mfca.argEntities != nil {
+				reflect.ValueOf(entities).Elem().Set(reflect.ValueOf(mfca.argEntities))
 			}
 
 			return mfca.retCount, mfca.retError
@@ -32,14 +32,14 @@ func (fca findAndCountAll) execute(ctx context.Context, records interface{}, que
 	}
 
 	mfca := &MockFindAndCountAll{
-		assert:     &Assert{ctxData: fetchContext(ctx)},
-		argQuery:   query,
-		argRecords: records,
+		assert:      &Assert{ctxData: fetchContext(ctx)},
+		argQuery:    query,
+		argEntities: entities,
 	}
 	panic(failExecuteMessage(mfca, fca))
 }
 
-func (fca *findAndCountAll) assert(t T) bool {
+func (fca *findAndCountAll) assert(t TestingT) bool {
 	t.Helper()
 	for _, mfca := range *fca {
 		if !mfca.assert.assert(t, mfca) {
@@ -53,19 +53,19 @@ func (fca *findAndCountAll) assert(t T) bool {
 
 // MockFindAndCountAll asserts and simulate find and count all function for test.
 type MockFindAndCountAll struct {
-	assert     *Assert
-	argQuery   rel.Query
-	argRecords interface{}
-	retCount   int
-	retError   error
+	assert      *Assert
+	argQuery    rel.Query
+	argEntities any
+	retCount    int
+	retError    error
 }
 
 // Result sets the result of this query.
-func (mfca *MockFindAndCountAll) Result(result interface{}, count int) *Assert {
+func (mfca *MockFindAndCountAll) Result(result any, count int) *Assert {
 	if mfca.argQuery.Table == "" {
 		mfca.argQuery.Table = rel.NewCollection(result, true).Table()
 	}
-	mfca.argRecords = result
+	mfca.argEntities = result
 	mfca.retCount = count
 	return mfca.assert
 }

@@ -19,11 +19,11 @@ func (da *deleteAll) register(ctxData ctxData) *MockDeleteAll {
 	return mda
 }
 
-func (da deleteAll) execute(ctx context.Context, record interface{}) error {
+func (da deleteAll) execute(ctx context.Context, entity any) error {
 	for _, mda := range da {
-		if (mda.argRecord == nil || reflect.DeepEqual(mda.argRecord, record)) &&
-			(mda.argRecordType == "" || mda.argRecordType == reflect.TypeOf(record).String()) &&
-			(mda.argRecordTable == "" || mda.argRecordTable == rel.NewCollection(record, true).Table()) &&
+		if (mda.argEntity == nil || reflect.DeepEqual(mda.argEntity, entity)) &&
+			(mda.argEntityType == "" || mda.argEntityType == reflect.TypeOf(entity).String()) &&
+			(mda.argEntityTable == "" || mda.argEntityTable == rel.NewCollection(entity, true).Table()) &&
 			mda.assert.call(ctx) {
 			return mda.retError
 		}
@@ -31,12 +31,12 @@ func (da deleteAll) execute(ctx context.Context, record interface{}) error {
 
 	mda := &MockDeleteAll{
 		assert:    &Assert{ctxData: fetchContext(ctx)},
-		argRecord: record,
+		argEntity: entity,
 	}
 	panic(failExecuteMessage(mda, da))
 }
 
-func (da *deleteAll) assert(t T) bool {
+func (da *deleteAll) assert(t TestingT) bool {
 	t.Helper()
 	for _, mda := range *da {
 		if !mda.assert.assert(t, mda) {
@@ -51,28 +51,28 @@ func (da *deleteAll) assert(t T) bool {
 // MockDeleteAll asserts and simulate Delete function for test.
 type MockDeleteAll struct {
 	assert         *Assert
-	argRecord      interface{}
-	argRecordType  string
-	argRecordTable string
+	argEntity      any
+	argEntityType  string
+	argEntityTable string
 	retError       error
 }
 
-// For assert calls for given record.
-func (mda *MockDeleteAll) For(record interface{}) *MockDeleteAll {
-	mda.argRecord = record
+// For assert calls for given entity.
+func (mda *MockDeleteAll) For(entity any) *MockDeleteAll {
+	mda.argEntity = entity
 	return mda
 }
 
 // ForType assert calls for given type.
 // Type must include package name, example: `model.User`.
 func (mda *MockDeleteAll) ForType(typ string) *MockDeleteAll {
-	mda.argRecordType = "*" + strings.TrimPrefix(typ, "*")
+	mda.argEntityType = "*" + strings.TrimPrefix(typ, "*")
 	return mda
 }
 
 // ForTable assert calls for given table.
 func (mda *MockDeleteAll) ForTable(typ string) *MockDeleteAll {
-	mda.argRecordTable = typ
+	mda.argEntityTable = typ
 	return mda
 }
 
@@ -94,19 +94,19 @@ func (mda *MockDeleteAll) ConnectionClosed() *Assert {
 
 // String representation of mocked call.
 func (mda MockDeleteAll) String() string {
-	argRecord := "<Any>"
-	if mda.argRecord != nil {
-		argRecord = csprint(mda.argRecord, true)
-	} else if mda.argRecordType != "" {
-		argRecord = fmt.Sprintf("<Type: %s>", mda.argRecordType)
-	} else if mda.argRecordTable != "" {
-		argRecord = fmt.Sprintf("<Table: %s>", mda.argRecordTable)
+	argEntity := "<Any>"
+	if mda.argEntity != nil {
+		argEntity = csprint(mda.argEntity, true)
+	} else if mda.argEntityType != "" {
+		argEntity = fmt.Sprintf("<Type: %s>", mda.argEntityType)
+	} else if mda.argEntityTable != "" {
+		argEntity = fmt.Sprintf("<Table: %s>", mda.argEntityTable)
 	}
 
-	return mda.assert.sprintf("DeleteAll(ctx, %s)", argRecord)
+	return mda.assert.sprintf("DeleteAll(ctx, %s)", argEntity)
 }
 
 // ExpectString representation of mocked call.
 func (mda MockDeleteAll) ExpectString() string {
-	return mda.assert.sprintf(`ExpectDeleteAll().ForType("%T")`, mda.argRecord)
+	return mda.assert.sprintf(`ExpectDeleteAll().ForType("%T")`, mda.argEntity)
 }

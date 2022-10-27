@@ -6,7 +6,7 @@ import (
 )
 
 // compact sprint struct ignoring zero values
-func csprint(v interface{}, parent bool) string {
+func csprint(v any, parent bool) string {
 	var (
 		notEmpty bool
 		str      string

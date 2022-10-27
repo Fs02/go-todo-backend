@@ -26,7 +26,7 @@ func (da deleteAny) execute(ctx context.Context, query rel.Query) (int, error) {
 			}
 
 			if !mda.unsafe && query.WhereQuery.None() {
-				panic("reltest: unsafe DeleteAny detected. if you want to mutate all records without filter, please use call .Unsafe()")
+				panic("reltest: unsafe DeleteAny detected. if you want to mutate all entities without filter, please use call .Unsafe()")
 			}
 
 			return mda.retDeletedCount, mda.retError
@@ -40,7 +40,7 @@ func (da deleteAny) execute(ctx context.Context, query rel.Query) (int, error) {
 	panic(failExecuteMessage(mda, da))
 }
 
-func (da *deleteAny) assert(t T) bool {
+func (da *deleteAny) assert(t TestingT) bool {
 	t.Helper()
 	for _, mda := range *da {
 		if !mda.assert.assert(t, mda) {
@@ -61,7 +61,7 @@ type MockDeleteAny struct {
 	retError        error
 }
 
-// Unsafe allows for unsafe operation to delete records without where condition.
+// Unsafe allows for unsafe operation to delete entities without where condition.
 func (mda *MockDeleteAny) Unsafe() *MockDeleteAny {
 	mda.unsafe = true
 	return mda
