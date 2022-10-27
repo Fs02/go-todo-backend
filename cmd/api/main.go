@@ -64,7 +64,7 @@ func initRepository() rel.Repository {
 	shutdowns = append(shutdowns, adapter.Close)
 
 	repository := rel.New(adapter)
-	repository.Instrumentation(func(ctx context.Context, op string, message string) func(err error) {
+	repository.Instrumentation(func(ctx context.Context, op string, message string, args ...interface{}) func(err error) {
 		// no op for rel functions.
 		if strings.HasPrefix(op, "rel-") {
 			return func(error) {}

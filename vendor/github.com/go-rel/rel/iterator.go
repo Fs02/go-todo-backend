@@ -6,10 +6,10 @@ import (
 	"io"
 )
 
-// Iterator allows iterating through all record in database in batch.
+// Iterator allows iterating through all entity in database in batch.
 type Iterator interface {
 	io.Closer
-	Next(record interface{}) error
+	Next(entity any) error
 }
 
 // IteratorOption is used to configure iteration behaviour, such as batch size, start id and finish id.
@@ -33,7 +33,7 @@ func BatchSize(size int) IteratorOption {
 	return batchSize(size)
 }
 
-type start []interface{}
+type start []any
 
 func (s start) apply(i *iterator) {
 	i.start = s
@@ -41,15 +41,15 @@ func (s start) apply(i *iterator) {
 
 // String representation.
 func (s start) String() string {
-	return fmt.Sprintf("rel.Start(%s)", fmtifaces(s))
+	return fmt.Sprintf("rel.Start(%s)", fmtAnys(s))
 }
 
 // Start specifies the primary value to start from (inclusive).
-func Start(id ...interface{}) IteratorOption {
+func Start(id ...any) IteratorOption {
 	return start(id)
 }
 
-type finish []interface{}
+type finish []any
 
 func (f finish) apply(i *iterator) {
 	i.finish = f
@@ -57,18 +57,18 @@ func (f finish) apply(i *iterator) {
 
 // String representation.
 func (f finish) String() string {
-	return fmt.Sprintf("rel.Finish(%s)", fmtifaces(f))
+	return fmt.Sprintf("rel.Finish(%s)", fmtAnys(f))
 }
 
 // Finish specifies the primary value to finish at (inclusive).
-func Finish(id ...interface{}) IteratorOption {
+func Finish(id ...any) IteratorOption {
 	return finish(id)
 }
 
 type iterator struct {
 	ctx       context.Context
-	start     []interface{}
-	finish    []interface{}
+	start     []any
+	finish    []any
 	batchSize int
 	current   int
 	query     Query
@@ -87,9 +87,9 @@ func (i *iterator) Close() error {
 	return nil
 }
 
-func (i *iterator) Next(record interface{}) error {
+func (i *iterator) Next(entity any) error {
 	if i.current%i.batchSize == 0 {
-		if err := i.fetch(i.ctx, record); err != nil {
+		if err := i.fetch(i.ctx, entity); err != nil {
 			return err
 		}
 	}
@@ -99,7 +99,7 @@ func (i *iterator) Next(record interface{}) error {
 	}
 
 	var (
-		doc      = NewDocument(record)
+		doc      = NewDocument(entity)
 		scanners = doc.Scanners(i.fields)
 	)
 
@@ -107,9 +107,9 @@ func (i *iterator) Next(record interface{}) error {
 	return i.cursor.Scan(scanners...)
 }
 
-func (i *iterator) fetch(ctx context.Context, record interface{}) error {
+func (i *iterator) fetch(ctx context.Context, entity any) error {
 	if i.current == 0 {
-		i.init(record)
+		i.init(entity)
 	} else {
 		i.cursor.Close()
 	}
@@ -132,9 +132,9 @@ func (i *iterator) fetch(ctx context.Context, record interface{}) error {
 	return nil
 }
 
-func (i *iterator) init(record interface{}) {
+func (i *iterator) init(entity any) {
 	var (
-		doc = NewDocument(record)
+		doc = NewDocument(entity)
 	)
 
 	if i.query.Table == "" {

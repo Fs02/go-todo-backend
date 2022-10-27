@@ -162,7 +162,7 @@ func TestTodos_Show(t *testing.T) {
 			name:     "not found",
 			status:   http.StatusNotFound,
 			path:     "/1",
-			response: `{"error":"Record not found"}`,
+			response: `{"error":"entity not found"}`,
 			mockRepo: func(repo *reltest.Repository) {
 				repo.ExpectFind(where.Eq("id", 1)).NotFound()
 			},
