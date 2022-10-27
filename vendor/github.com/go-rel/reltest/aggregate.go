@@ -38,7 +38,7 @@ func (a aggregate) execute(ctx context.Context, query rel.Query, aggregate strin
 	panic(failExecuteMessage(ma, a))
 }
 
-func (a *aggregate) assert(t T) bool {
+func (a *aggregate) assert(t TestingT) bool {
 	t.Helper()
 	for _, ma := range *a {
 		if !ma.assert.assert(t, ma) {

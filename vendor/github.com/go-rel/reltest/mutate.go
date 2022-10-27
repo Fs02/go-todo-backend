@@ -21,12 +21,12 @@ func (m *mutate) register(name string, ctxData ctxData, mutators ...rel.Mutator)
 	return mm
 }
 
-func (m mutate) execute(name string, ctx context.Context, record interface{}, mutators ...rel.Mutator) error {
+func (m mutate) execute(name string, ctx context.Context, entity any, mutators ...rel.Mutator) error {
 	for _, mm := range m {
-		if (mm.argRecord == nil || reflect.DeepEqual(mm.argRecord, record)) &&
-			(mm.argRecordType == "" || mm.argRecordType == reflect.TypeOf(record).String()) &&
-			(mm.argRecordTable == "" || mm.argRecordTable == rel.NewDocument(record, true).Table()) &&
-			(mm.argRecordContains == nil || matchContains(mm.argRecordContains, record)) &&
+		if (mm.argEntity == nil || reflect.DeepEqual(mm.argEntity, entity)) &&
+			(mm.argEntityType == "" || mm.argEntityType == reflect.TypeOf(entity).String()) &&
+			(mm.argEntityTable == "" || mm.argEntityTable == rel.NewDocument(entity, true).Table()) &&
+			(mm.argEntityContains == nil || matchContains(mm.argEntityContains, entity)) &&
 			(mm.argMutators == nil || matchMutators(mm.argMutators, mutators)) &&
 			mm.assert.call(ctx) {
 			return mm.retError
@@ -36,13 +36,13 @@ func (m mutate) execute(name string, ctx context.Context, record interface{}, mu
 	mm := &MockMutate{
 		assert:      &Assert{ctxData: fetchContext(ctx)},
 		name:        name,
-		argRecord:   record,
+		argEntity:   entity,
 		argMutators: mutators,
 	}
 	panic(failExecuteMessage(mm, m))
 }
 
-func (m *mutate) assert(t T) bool {
+func (m *mutate) assert(t TestingT) bool {
 	t.Helper()
 	for _, mm := range *m {
 		if !mm.assert.assert(t, mm) {
@@ -58,36 +58,36 @@ func (m *mutate) assert(t T) bool {
 type MockMutate struct {
 	assert            *Assert
 	name              string
-	argRecord         interface{}
-	argRecordType     string
-	argRecordTable    string
-	argRecordContains interface{}
+	argEntity         any
+	argEntityType     string
+	argEntityTable    string
+	argEntityContains any
 	argMutators       []rel.Mutator
 	retError          error
 }
 
-// For assert calls for given record.
-func (mm *MockMutate) For(record interface{}) *MockMutate {
-	mm.argRecord = record
+// For assert calls for given entity.
+func (mm *MockMutate) For(entity any) *MockMutate {
+	mm.argEntity = entity
 	return mm
 }
 
 // ForType assert calls for given type.
 // Type must include package name, example: `model.User`.
 func (mm *MockMutate) ForType(typ string) *MockMutate {
-	mm.argRecordType = "*" + strings.TrimPrefix(typ, "*")
+	mm.argEntityType = "*" + strings.TrimPrefix(typ, "*")
 	return mm
 }
 
 // ForTable assert calls for given table.
 func (mm *MockMutate) ForTable(typ string) *MockMutate {
-	mm.argRecordTable = typ
+	mm.argEntityTable = typ
 	return mm
 }
 
 // ForContains assert calls to contains some value of given struct.
-func (mm *MockMutate) ForContains(contains interface{}) *MockMutate {
-	mm.argRecordContains = contains
+func (mm *MockMutate) ForContains(contains any) *MockMutate {
+	mm.argEntityContains = contains
 	return mm
 }
 
@@ -117,15 +117,15 @@ func (mm *MockMutate) NotUnique(key string) *Assert {
 
 // String representation of mocked call.
 func (mm MockMutate) String() string {
-	argRecord := "<Any>"
-	if mm.argRecord != nil {
-		argRecord = csprint(mm.argRecord, true)
-	} else if mm.argRecordContains != nil {
-		argRecord = fmt.Sprintf("<Contains: %s>", csprint(mm.argRecordContains, true))
-	} else if mm.argRecordType != "" {
-		argRecord = fmt.Sprintf("<Type: %s>", mm.argRecordType)
-	} else if mm.argRecordTable != "" {
-		argRecord = fmt.Sprintf("<Table: %s>", mm.argRecordTable)
+	argEntity := "<Any>"
+	if mm.argEntity != nil {
+		argEntity = csprint(mm.argEntity, true)
+	} else if mm.argEntityContains != nil {
+		argEntity = fmt.Sprintf("<Contains: %s>", csprint(mm.argEntityContains, true))
+	} else if mm.argEntityType != "" {
+		argEntity = fmt.Sprintf("<Type: %s>", mm.argEntityType)
+	} else if mm.argEntityTable != "" {
+		argEntity = fmt.Sprintf("<Table: %s>", mm.argEntityTable)
 	}
 
 	argMutators := ""
@@ -133,7 +133,7 @@ func (mm MockMutate) String() string {
 		argMutators += fmt.Sprintf(", %v", mm.argMutators[i])
 	}
 
-	return mm.assert.sprintf("%s(ctx, %s%s)", mm.name, argRecord, argMutators)
+	return mm.assert.sprintf("%s(ctx, %s%s)", mm.name, argEntity, argMutators)
 }
 
 // ExpectString representation of mocked call.
@@ -147,5 +147,5 @@ func (mm MockMutate) ExpectString() string {
 		}
 	}
 
-	return mm.assert.sprintf("Expect%s(%s).ForType(\"%T\")", mm.name, argMutators, mm.argRecord)
+	return mm.assert.sprintf("Expect%s(%s).ForType(\"%T\")", mm.name, argMutators, mm.argEntity)
 }

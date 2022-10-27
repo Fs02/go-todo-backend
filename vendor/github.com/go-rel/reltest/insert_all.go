@@ -19,11 +19,11 @@ func (ia *insertAll) register(ctxData ctxData) *MockInsertAll {
 	return mia
 }
 
-func (ia insertAll) execute(ctx context.Context, records interface{}) error {
+func (ia insertAll) execute(ctx context.Context, entities any) error {
 	for _, mia := range ia {
-		if (mia.argRecord == nil || reflect.DeepEqual(mia.argRecord, records)) &&
-			(mia.argRecordType == "" || mia.argRecordType == reflect.TypeOf(records).String()) &&
-			(mia.argRecordTable == "" || mia.argRecordTable == rel.NewCollection(records, true).Table()) &&
+		if (mia.argEntity == nil || reflect.DeepEqual(mia.argEntity, entities)) &&
+			(mia.argEntityType == "" || mia.argEntityType == reflect.TypeOf(entities).String()) &&
+			(mia.argEntityTable == "" || mia.argEntityTable == rel.NewCollection(entities, true).Table()) &&
 			mia.assert.call(ctx) {
 			return mia.retError
 		}
@@ -31,12 +31,12 @@ func (ia insertAll) execute(ctx context.Context, records interface{}) error {
 
 	mia := &MockInsertAll{
 		assert:    &Assert{ctxData: fetchContext(ctx)},
-		argRecord: records,
+		argEntity: entities,
 	}
 	panic(failExecuteMessage(mia, ia))
 }
 
-func (ia *insertAll) assert(t T) bool {
+func (ia *insertAll) assert(t TestingT) bool {
 	t.Helper()
 	for _, mia := range *ia {
 		if !mia.assert.assert(t, mia) {
@@ -51,28 +51,28 @@ func (ia *insertAll) assert(t T) bool {
 // MockInsertAll asserts and simulate Insert function for test.
 type MockInsertAll struct {
 	assert         *Assert
-	argRecord      interface{}
-	argRecordType  string
-	argRecordTable string
+	argEntity      any
+	argEntityType  string
+	argEntityTable string
 	retError       error
 }
 
-// For assert calls for given record.
-func (mia *MockInsertAll) For(record interface{}) *MockInsertAll {
-	mia.argRecord = record
+// For assert calls for given entity.
+func (mia *MockInsertAll) For(entity any) *MockInsertAll {
+	mia.argEntity = entity
 	return mia
 }
 
 // ForType assert calls for given type.
 // Type must include package name, example: `model.User`.
 func (mia *MockInsertAll) ForType(typ string) *MockInsertAll {
-	mia.argRecordType = "*" + strings.TrimPrefix(typ, "*")
+	mia.argEntityType = "*" + strings.TrimPrefix(typ, "*")
 	return mia
 }
 
 // ForTable assert calls for given table.
 func (mia *MockInsertAll) ForTable(typ string) *MockInsertAll {
-	mia.argRecordTable = typ
+	mia.argEntityTable = typ
 	return mia
 }
 
@@ -102,19 +102,19 @@ func (mia *MockInsertAll) NotUnique(key string) *Assert {
 
 // String representation of mocked call.
 func (mia MockInsertAll) String() string {
-	argRecord := "<Any>"
-	if mia.argRecord != nil {
-		argRecord = csprint(mia.argRecord, true)
-	} else if mia.argRecordType != "" {
-		argRecord = fmt.Sprintf("<Type: %s>", mia.argRecordType)
-	} else if mia.argRecordTable != "" {
-		argRecord = fmt.Sprintf("<Table: %s>", mia.argRecordTable)
+	argEntity := "<Any>"
+	if mia.argEntity != nil {
+		argEntity = csprint(mia.argEntity, true)
+	} else if mia.argEntityType != "" {
+		argEntity = fmt.Sprintf("<Type: %s>", mia.argEntityType)
+	} else if mia.argEntityTable != "" {
+		argEntity = fmt.Sprintf("<Table: %s>", mia.argEntityTable)
 	}
 
-	return mia.assert.sprintf("InsertAll(ctx, %s)", argRecord)
+	return mia.assert.sprintf("InsertAll(ctx, %s)", argEntity)
 }
 
 // ExpectString representation of mocked call.
 func (mia MockInsertAll) ExpectString() string {
-	return mia.assert.sprintf("InsertAll().ForType(\"%T\")", mia.argRecord)
+	return mia.assert.sprintf("InsertAll().ForType(\"%T\")", mia.argEntity)
 }

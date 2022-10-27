@@ -36,13 +36,13 @@ func (na *nopAdapter) Delete(ctx context.Context, query rel.Query) (int, error) 
 	return 1, nil
 }
 
-func (na *nopAdapter) Insert(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate, onConflict rel.OnConflict) (interface{}, error) {
+func (na *nopAdapter) Insert(ctx context.Context, query rel.Query, primaryField string, mutates map[string]rel.Mutate, onConflict rel.OnConflict) (any, error) {
 	return 1, nil
 }
 
-func (na *nopAdapter) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate, onConflict rel.OnConflict) ([]interface{}, error) {
+func (na *nopAdapter) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate, onConflict rel.OnConflict) ([]any, error) {
 	var (
-		ids = make([]interface{}, len(bulkMutates))
+		ids = make([]any, len(bulkMutates))
 	)
 
 	for i := range bulkMutates {
@@ -68,7 +68,7 @@ func (na *nopAdapter) Apply(ctx context.Context, migration rel.Migration) error 
 	return nil
 }
 
-func (na *nopAdapter) Exec(ctx context.Context, stmt string, args []interface{}) (int64, int64, error) {
+func (na *nopAdapter) Exec(ctx context.Context, stmt string, args []any) (int64, int64, error) {
 	return 0, 0, nil
 }
 
@@ -89,11 +89,11 @@ func (nc *nopCursor) Next() bool {
 	return nc.count >= 0
 }
 
-func (nc *nopCursor) Scan(...interface{}) error {
+func (nc *nopCursor) Scan(...any) error {
 	nc.NopScanner()
 	return nil
 }
 
-func (nc *nopCursor) NopScanner() interface{} {
+func (nc *nopCursor) NopScanner() any {
 	return nil
 }

@@ -6,10 +6,10 @@ import (
 	"reflect"
 )
 
-// T is an interface wrapper around *testing.T
-type T interface {
-	Logf(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
+// TestingT is an interface wrapper around *testing.T
+type TestingT interface {
+	Logf(format string, args ...any)
+	Errorf(format string, args ...any)
 	Helper()
 }
 
@@ -56,7 +56,7 @@ func (a *Assert) call(ctx context.Context) bool {
 	return true
 }
 
-func (a Assert) assert(t T, mock interface{}) bool {
+func (a Assert) assert(t TestingT, mock any) bool {
 	if a.optional ||
 		(a.repeatability == 0 && a.totalCalls > 0) ||
 		(a.repeatability != 0 && a.totalCalls >= a.repeatability) {
@@ -73,14 +73,14 @@ func (a Assert) assert(t T, mock interface{}) bool {
 	return false
 }
 
-func (a Assert) sprintf(format string, args ...interface{}) string {
+func (a Assert) sprintf(format string, args ...any) string {
 	if a.ctxData.txDepth != 0 {
 		return a.ctxData.String() + " " + fmt.Sprintf(format, args...)
 	}
 	return fmt.Sprintf(format, args...)
 }
 
-func failExecuteMessage(call interface{}, mocks interface{}) string {
+func failExecuteMessage(call any, mocks any) string {
 	var (
 		mocksStr      string
 		callStr       = call.(interface{ String() string }).String()

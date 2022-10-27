@@ -21,17 +21,17 @@ func (p *preload) register(ctxData ctxData, field string, queriers ...rel.Querie
 	return mp
 }
 
-func (p preload) execute(ctx context.Context, records interface{}, field string, queriers ...rel.Querier) error {
+func (p preload) execute(ctx context.Context, entities any, field string, queriers ...rel.Querier) error {
 	query := rel.Build("", queriers...)
 	for _, mp := range p {
-		if (mp.argRecords == nil || reflect.DeepEqual(mp.argRecords, records)) &&
-			(mp.argRecordsType == "" || mp.argRecordsType == reflect.TypeOf(records).String()) &&
+		if (mp.argEntities == nil || reflect.DeepEqual(mp.argEntities, entities)) &&
+			(mp.argEntitiesType == "" || mp.argEntitiesType == reflect.TypeOf(entities).String()) &&
 			matchQuery(mp.argQuery, query) &&
 			mp.assert.call(ctx) {
 
 			if mp.result != nil {
 				var (
-					target = asSlice(records, false)
+					target = asSlice(entities, false)
 					result = asSlice(mp.result, true)
 					path   = strings.Split(field, ".")
 				)
@@ -44,15 +44,15 @@ func (p preload) execute(ctx context.Context, records interface{}, field string,
 	}
 
 	mp := &MockPreload{
-		assert:     &Assert{ctxData: fetchContext(ctx)},
-		argRecords: records,
-		argField:   field,
-		argQuery:   query,
+		assert:      &Assert{ctxData: fetchContext(ctx)},
+		argEntities: entities,
+		argField:    field,
+		argQuery:    query,
 	}
 	panic(failExecuteMessage(mp, p))
 }
 
-func (p *preload) assert(t T) bool {
+func (p *preload) assert(t TestingT) bool {
 	t.Helper()
 	for _, mp := range *p {
 		if !mp.assert.assert(t, mp) {
@@ -66,30 +66,30 @@ func (p *preload) assert(t T) bool {
 
 // MockPreload asserts and simulate Delete function for test.
 type MockPreload struct {
-	assert         *Assert
-	result         interface{}
-	argRecords     interface{}
-	argRecordsType string
-	argField       string
-	argQuery       rel.Query
-	retError       error
+	assert          *Assert
+	result          any
+	argEntities     any
+	argEntitiesType string
+	argField        string
+	argQuery        rel.Query
+	retError        error
 }
 
-// For assert calls for given record.
-func (md *MockPreload) For(records interface{}) *MockPreload {
-	md.argRecords = records
+// For assert calls for given entity.
+func (md *MockPreload) For(entities any) *MockPreload {
+	md.argEntities = entities
 	return md
 }
 
 // ForType assert calls for given type.
 // Type must include package name, example: `model.User`.
 func (md *MockPreload) ForType(typ string) *MockPreload {
-	md.argRecordsType = "*" + strings.TrimPrefix(typ, "*")
+	md.argEntitiesType = "*" + strings.TrimPrefix(typ, "*")
 	return md
 }
 
 // Result sets the result of preload.
-func (mp *MockPreload) Result(result interface{}) *Assert {
+func (mp *MockPreload) Result(result any) *Assert {
 	mp.result = result
 	return mp.assert
 }
@@ -115,19 +115,19 @@ func (mp MockPreload) queryParamString() string {
 
 // String representation of mocked call.
 func (mp MockPreload) String() string {
-	argRecords := "<Any>"
-	if mp.argRecords != nil {
-		argRecords = csprint(mp.argRecords, true)
-	} else if mp.argRecordsType != "" {
-		argRecords = fmt.Sprintf("<Type: %s>", mp.argRecordsType)
+	argEntities := "<Any>"
+	if mp.argEntities != nil {
+		argEntities = csprint(mp.argEntities, true)
+	} else if mp.argEntitiesType != "" {
+		argEntities = fmt.Sprintf("<Type: %s>", mp.argEntitiesType)
 	}
 
-	return mp.assert.sprintf("Preload(ctx, %s, %q%s)", argRecords, mp.argField, mp.queryParamString())
+	return mp.assert.sprintf("Preload(ctx, %s, %q%s)", argEntities, mp.argField, mp.queryParamString())
 }
 
 // ExpectString representation of mocked call.
 func (mp MockPreload) ExpectString() string {
-	return mp.assert.sprintf("ExpectPreload(%q%s).ForType(\"%T\")", mp.argField, mp.queryParamString(), mp.argRecords)
+	return mp.assert.sprintf("ExpectPreload(%q%s).ForType(\"%T\")", mp.argField, mp.queryParamString(), mp.argEntities)
 }
 
 type slice interface {
@@ -137,7 +137,7 @@ type slice interface {
 	Len() int
 }
 
-func asSlice(v interface{}, readonly bool) slice {
+func asSlice(v any, readonly bool) slice {
 	var (
 		sl slice
 		rt = reflect.TypeOf(v)
@@ -163,7 +163,7 @@ func execPreload(target slice, result slice, path []string) {
 	}
 
 	var (
-		mappedResult map[interface{}]reflect.Value
+		mappedResult map[any]reflect.Value
 		stack        = make([]frame, target.Len())
 	)
 
@@ -237,9 +237,9 @@ func execPreload(target slice, result slice, path []string) {
 	}
 }
 
-func mapResult(result slice, fField string, hasMany bool) map[interface{}]reflect.Value {
+func mapResult(result slice, fField string, hasMany bool) map[any]reflect.Value {
 	var (
-		mapResult = make(map[interface{}]reflect.Value)
+		mapResult = make(map[any]reflect.Value)
 	)
 
 	for i := 0; i < result.Len(); i++ {

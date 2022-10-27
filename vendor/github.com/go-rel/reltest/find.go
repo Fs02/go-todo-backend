@@ -18,13 +18,13 @@ func (f *find) register(ctxData ctxData, queriers ...rel.Querier) *MockFind {
 	return mf
 }
 
-func (f find) execute(ctx context.Context, record interface{}, queriers ...rel.Querier) error {
+func (f find) execute(ctx context.Context, entity any, queriers ...rel.Querier) error {
 	query := rel.Build("", queriers...)
 	for _, mf := range f {
 		if matchQuery(mf.argQuery, query) &&
 			mf.assert.call(ctx) {
-			if mf.argRecord != nil {
-				reflect.ValueOf(record).Elem().Set(reflect.ValueOf(mf.argRecord))
+			if mf.argEntity != nil {
+				reflect.ValueOf(entity).Elem().Set(reflect.ValueOf(mf.argEntity))
 			}
 
 			return mf.retError
@@ -34,12 +34,12 @@ func (f find) execute(ctx context.Context, record interface{}, queriers ...rel.Q
 	mf := &MockFind{
 		assert:    &Assert{ctxData: fetchContext(ctx)},
 		argQuery:  query,
-		argRecord: record,
+		argEntity: entity,
 	}
 	panic(failExecuteMessage(mf, f))
 }
 
-func (f *find) assert(t T) bool {
+func (f *find) assert(t TestingT) bool {
 	t.Helper()
 	for _, mf := range *f {
 		if !mf.assert.assert(t, mf) {
@@ -55,16 +55,16 @@ func (f *find) assert(t T) bool {
 type MockFind struct {
 	assert    *Assert
 	argQuery  rel.Query
-	argRecord interface{}
+	argEntity any
 	retError  error
 }
 
 // Result sets the result of this query.
-func (mf *MockFind) Result(result interface{}) *Assert {
+func (mf *MockFind) Result(result any) *Assert {
 	if mf.argQuery.Table == "" {
 		mf.argQuery.Table = rel.NewDocument(result, true).Table()
 	}
-	mf.argRecord = result
+	mf.argEntity = result
 	return mf.assert
 }
 
