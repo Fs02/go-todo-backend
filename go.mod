@@ -10,7 +10,7 @@ require (
 	github.com/goware/cors v1.1.1
 	github.com/lib/pq v1.10.7
 	github.com/stretchr/testify v1.8.1
-	go.uber.org/zap v1.23.0
+	go.uber.org/zap v1.24.0
 )
 
 require (
