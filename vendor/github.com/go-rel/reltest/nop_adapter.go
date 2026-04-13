@@ -6,7 +6,10 @@ import (
 	"github.com/go-rel/rel"
 )
 
-type nopAdapter struct {
+type nopAdapter struct{}
+
+func (na *nopAdapter) Name() string {
+	return "nop"
 }
 
 func (na *nopAdapter) Close() error {
@@ -41,9 +44,7 @@ func (na *nopAdapter) Insert(ctx context.Context, query rel.Query, primaryField 
 }
 
 func (na *nopAdapter) InsertAll(ctx context.Context, query rel.Query, primaryField string, fields []string, bulkMutates []map[string]rel.Mutate, onConflict rel.OnConflict) ([]any, error) {
-	var (
-		ids = make([]any, len(bulkMutates))
-	)
+	ids := make([]any, len(bulkMutates))
 
 	for i := range bulkMutates {
 		ids[i] = i + 1
